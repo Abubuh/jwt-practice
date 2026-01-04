@@ -12,7 +12,20 @@ const Todo = Schema("Todo", {
 });
 
 export class TodoRepository {
+  static async getTodosByUserId(userId) {
+    return await Todo.find({ userId });
+  }
+
   static async create(todo) {
     return Todo.create(todo).save();
   }
+
+  // static async updateTodoById(todoId) {
+  //   return await Todo.find({ todoId });
+  // }
+
+  // static async getTodoById(_id) {
+  //   console.log(_id);
+  //   return await Todo.findOne({ _id });
+  // }
 }

@@ -8,12 +8,32 @@ router.post("/todos", authMiddleware, async (req, res) => {
   try {
     const { title, priority } = req.body;
     const userId = req.user.userId;
-    const todo = TodoService.createTodo({ title, priority, userId });
-    res.status(201).json(todo);
+    const ToDo = TodoService.createTodo({ title, priority, userId });
+    return res.status(201).json(ToDo);
   } catch (error) {
     res.status(401).json({ error: error.message });
   }
 });
+
+router.get("/user/todos", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const ToDos = await TodoService.getAllTodos({ userId });
+    return res.status(200).json(ToDos);
+  } catch (error) {
+    res.status(500).json({ message: "Unexpected error occurred" });
+  }
+});
+
+// router.put("/user/todos/:id", authMiddleware, async (req, res) => {
+//   try {
+//     const userId = req.user.userId;
+//     console.log(req.params.id);
+//     const Todo = await TodoService.getTodo(req.params.id);
+//     console.log(Todo);
+//     res.status(200).json("well see");
+//   } catch (error) {}
+// });
 
 router.get("/todos/test", authMiddleware, (req, res) => {
   res.json({
