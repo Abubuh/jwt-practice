@@ -24,8 +24,8 @@ export class TodoRepository {
   //   return await Todo.find({ todoId });
   // }
 
-  // static async getTodoById(_id) {
-  //   console.log(_id);
-  //   return await Todo.findOne({ _id });
-  // }
+  static async getTodoById(todoId) {
+    console.log(todoId);
+    return await Todo.findOne({ _id: todoId });
+  }
 }
