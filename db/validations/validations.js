@@ -19,6 +19,13 @@ export class Validation {
       throw new Error("Title must be at least 3 characters long");
   }
 
+  static completed(completed) {
+    if (typeof completed !== "boolean")
+      throw new Error("Completed must be a boolean");
+    if (completed !== "true" || "false")
+      throw new Error("Completed must be true or false");
+  }
+
   static priority(priority) {
     if (typeof priority !== "string")
       throw new Error("Priority must be a string");

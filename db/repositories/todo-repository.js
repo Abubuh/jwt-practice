@@ -20,9 +20,16 @@ export class TodoRepository {
     return Todo.create(todo).save();
   }
 
-  // static async updateTodoById(todoId) {
-  //   return await Todo.find({ todoId });
-  // }
+  static async updateTodoById(todoId, data) {
+    const todo = await Todo.findOne({ _id: todoId });
+    if (!todo) return null;
+
+    Object.assign(todo, {
+      ...data,
+      updatedAt: new Date().toISOString(),
+    });
+    return await todo.save();
+  }
 
   static async getTodoById(todoId) {
     console.log(todoId);

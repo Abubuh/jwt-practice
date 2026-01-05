@@ -25,15 +25,21 @@ router.get("/user/todos", authMiddleware, async (req, res) => {
   }
 });
 
-// router.put("/user/todos/:id", authMiddleware, async (req, res) => {
-//   try {
-//     const userId = req.user.userId;
-//     console.log(req.params.id);
-//     const Todo = await TodoService.getTodo(req.params.id);
-//     console.log(Todo);
-//     res.status(200).json("well see");
-//   } catch (error) {}
-// });
+router.put("/user/todos/:id", authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, completed } = req.body;
+    console.log({ title, completed });
+    const Todo = await TodoService.updateTodo(id, {
+      title,
+      completed,
+    });
+    console.log(Todo);
+    res.status(200).json(Todo);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
 
 router.get("/todos/test", authMiddleware, (req, res) => {
   res.json({

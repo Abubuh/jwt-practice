@@ -43,10 +43,10 @@ export default class TodoService {
     }
   }
 
-  static async updateTodo({ todoId }) {
-    const now = new Date().toISOString();
-    try {
-      const Todo = TodoRepository.updateTodoById(todoId, { updatedAt: now });
-    } catch (error) {}
+  static async updateTodo(todoId, data) {
+    if (!data.title && data.completed === undefined) {
+      throw new Error("Nothing to update");
+    }
+    return await TodoRepository.updateTodoById(todoId, data);
   }
 }
