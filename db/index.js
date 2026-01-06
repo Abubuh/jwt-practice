@@ -1,6 +1,5 @@
 import express from "express";
 import { PORT } from "./config.js";
-import { UserRepository } from "./repositories/user-repository.js";
 import cors from "cors";
 import router from "./routes/todo.js";
 import { UserService } from "./services/auth.service.js";
@@ -28,7 +27,7 @@ app.post("/register", async (req, res) => {
   const { username, password } = req.body;
   console.log(req.body);
   try {
-    const id = await UserRepository.create({ username, password });
+    const id = await UserService.create({ username, password });
     res.send({ id });
   } catch (error) {
     //Checar video para mejorar mensajes de errores :d (como manejar errores como un senior)
