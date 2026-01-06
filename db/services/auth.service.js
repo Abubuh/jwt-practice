@@ -1,8 +1,9 @@
 import { UserRepository } from "../repositories/user-repository.js";
 import { Validation } from "../validations/validations.js";
 import bcrypt from "bcrypt";
-import { JWT_SECRET } from "../config.js";
+import { JWT_SECRET, SALT_ROUNDS } from "../config.js";
 import jwt from "jsonwebtoken";
+import crypto from "node:crypto";
 
 //Se encarga de:
 //Cuando crear, si se puede crear algo, si algo es valido, que datos finales se usan.
@@ -43,15 +44,16 @@ export class UserService {
     Validation.username(username);
     Validation.password(password);
     //Que sean unicos
-    const userExists = UserService.findByUsername(username);
+    const userExists = await UserRepository.findByUsername(username);
     if (!userExists) {
       const id = crypto.randomUUID();
       const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+      await UserRepository.createUser({ id, username, hashedPassword });
+      return {
+        id: id,
+        username,
+        hashedPassword,
+      };
     }
-    return {
-      id: id,
-      username,
-      hashedPassword,
-    };
   }
 }
