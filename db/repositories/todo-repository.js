@@ -32,7 +32,6 @@ export class TodoRepository {
   }
 
   static async getTodoById(todoId) {
-    console.log(todoId);
     return await Todo.findOne({ _id: todoId });
   }
 }

@@ -12,7 +12,6 @@ export const User = Schema("User", {
 export class UserRepository {
   static async findByUsername({ username }) {
     const user = await User.findOne({ username });
-    // console.log(user);
     return user;
   }
 

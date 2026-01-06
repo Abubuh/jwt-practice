@@ -29,12 +29,10 @@ router.patch("/user/todos/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const { title, completed } = req.body;
-    console.log({ title, completed });
     const Todo = await TodoService.updateTodo(id, {
       title,
       completed,
     });
-    console.log(Todo);
     res.status(200).json(Todo);
   } catch (error) {
     res.status(400).json({ message: error.message });

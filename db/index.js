@@ -25,7 +25,6 @@ app.post("/login", async (req, res) => {
 
 app.post("/register", async (req, res) => {
   const { username, password } = req.body;
-  console.log(req.body);
   try {
     const id = await UserService.create({ username, password });
     res.send({ id });
