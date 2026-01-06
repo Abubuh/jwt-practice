@@ -44,9 +44,20 @@ export default class TodoService {
   }
 
   static async updateTodo(todoId, data) {
-    if (!data.title && data.completed === undefined) {
+    const todo = await TodoRepository.getTodoById(todoId);
+    if (!todo) {
+      throw new Error("This todo doenst exist.");
+    }
+    const cleanData = Object.fromEntries(
+      Object.entries(data).filter(([_, value]) => value !== undefined)
+    );
+    if (Object.keys(cleanData).length === 0) {
       throw new Error("Nothing to update");
     }
-    return await TodoRepository.updateTodoById(todoId, data);
+    try {
+      return await TodoRepository.updateTodoById(todoId, cleanData);
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 }
