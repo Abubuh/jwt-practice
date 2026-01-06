@@ -25,7 +25,7 @@ router.get("/user/todos", authMiddleware, async (req, res) => {
   }
 });
 
-router.put("/user/todos/:id", authMiddleware, async (req, res) => {
+router.patch("/user/todos/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const { title, completed } = req.body;
