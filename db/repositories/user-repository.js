@@ -11,13 +11,13 @@ export const User = Schema("User", {
 //UserRepository- Se encarga de CRUD
 export class UserRepository {
   static async findByUsername({ username }) {
-    const user = await User.findOne({ username: username });
+    const user = await User.findOne({ username });
     // console.log(user);
     return user;
   }
 
   static async createUser({ id, username, hashedPassword }) {
-    User.create({
+    await User.create({
       _id: id,
       username,
       password: hashedPassword,
