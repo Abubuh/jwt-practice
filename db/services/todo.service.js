@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { Validation } from "../validations/validations.js";
 import { TodoRepository } from "../repositories/todo-repository.js";
+const ALLOWED_UPDATE_FIELDS = ["title", "completed", "priority"];
 
 export default class TodoService {
   static createTodo({ title, priority, userId }) {
@@ -56,6 +57,17 @@ export default class TodoService {
     }
     try {
       return await TodoRepository.updateTodoById(todoId, cleanData);
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  static async deleteTodo(todoId, userId) {
+    const todo = await TodoService.getTodo(todoId);
+    if (!todo) throw new Error("Todo not found");
+    if (todo.userId !== userId) throw new Error("You cant delete this todo.");
+    try {
+      return await TodoRepository.deleteTodoById(todoId);
     } catch (error) {
       throw new Error(error.message);
     }

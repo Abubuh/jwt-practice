@@ -4,7 +4,7 @@ import TodoService from "../services/todo.service.js";
 
 const router = express.Router();
 
-router.post("/todos", authMiddleware, async (req, res) => {
+router.post("/create/todo", authMiddleware, async (req, res) => {
   try {
     const { title, priority } = req.body;
     const userId = req.user.userId;
@@ -25,7 +25,7 @@ router.get("/user/todos", authMiddleware, async (req, res) => {
   }
 });
 
-router.patch("/user/todos/:id", authMiddleware, async (req, res) => {
+router.put("/user/todos/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const { title, completed } = req.body;
@@ -36,6 +36,18 @@ router.patch("/user/todos/:id", authMiddleware, async (req, res) => {
     res.status(200).json(Todo);
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+});
+
+router.delete("/user/todo/:id", authMiddleware, async (req, res) => {
+  const todoId = req.params.id;
+  const userId = req.user.userId;
+  console.log("from route", todoId, userId);
+  try {
+    await TodoService.deleteTodo(todoId, userId);
+    res.json(200).json("Deleted successfully");
+  } catch (error) {
+    res.status(401).json({ message: error.message });
   }
 });
 

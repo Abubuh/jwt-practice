@@ -34,4 +34,8 @@ export class TodoRepository {
   static async getTodoById(todoId) {
     return await Todo.findOne({ _id: todoId });
   }
+
+  static async deleteTodoById(todoId) {
+    return await Todo.remove({ _id: todoId });
+  }
 }
