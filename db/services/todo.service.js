@@ -26,9 +26,9 @@ export default class TodoService {
     return todo;
   }
 
-  static async getAllTodos({ userId }) {
+  static async getAllTodos(userId) {
     try {
-      const Todos = await TodoRepository.getTodosByUserId({ userId: userId });
+      const Todos = await TodoRepository.getTodosByUserId(userId);
       return Todos;
     } catch (error) {
       throw new Error("Something unexpected occurred");
@@ -44,15 +44,23 @@ export default class TodoService {
     }
   }
 
-  static async updateTodo(todoId, data) {
+  static async updateTodo(todoId, userId, data) {
     const todo = await TodoRepository.getTodoById(todoId);
     if (!todo) {
       throw new Error("This todo doenst exist.");
     }
+    if (todo.userId !== userId)
+      throw new Error("This todo is from another user.");
     const cleanData = Object.fromEntries(
       Object.entries(data).filter(([_, value]) => value !== undefined)
     );
-    if (Object.keys(cleanData).length === 0) {
+    const update = {};
+    for (const key of ALLOWED_UPDATE_FIELDS) {
+      if (data[key] !== undefined) {
+        update[key] = data[key];
+      }
+    }
+    if (Object.keys(update).length === 0) {
       throw new Error("Nothing to update");
     }
     try {

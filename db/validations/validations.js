@@ -14,6 +14,7 @@ export class Validation {
   }
 
   static title(title) {
+    if (!title) throw new Error("Todo needs a title!");
     if (typeof title !== "string") throw new Error("Title must be a string");
     if (title.length < 3)
       throw new Error("Title must be at least 3 characters long");
@@ -27,6 +28,7 @@ export class Validation {
   }
 
   static priority(priority) {
+    if (!priority) throw new Error("Todo needs a priority");
     if (typeof priority !== "string")
       throw new Error("Priority must be a string");
     const priorities = ["low", "medium", "high"];

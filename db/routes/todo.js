@@ -18,18 +18,19 @@ router.post("/create/todo", authMiddleware, async (req, res) => {
 router.get("/user/todos", authMiddleware, async (req, res) => {
   try {
     const userId = req.user.userId;
-    const ToDos = await TodoService.getAllTodos({ userId });
-    return res.status(200).json(ToDos);
+    const Todos = await TodoService.getAllTodos(userId);
+    return res.status(200).json(Todos);
   } catch (error) {
     res.status(500).json({ message: "Unexpected error occurred" });
   }
 });
 
-router.put("/user/todos/:id", authMiddleware, async (req, res) => {
+router.put("/user/todos/update/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user.userId;
     const { title, completed } = req.body;
-    const Todo = await TodoService.updateTodo(id, {
+    const Todo = await TodoService.updateTodo(id, userId, {
       title,
       completed,
     });

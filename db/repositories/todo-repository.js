@@ -13,7 +13,7 @@ const Todo = Schema("Todo", {
 
 export class TodoRepository {
   static async getTodosByUserId(userId) {
-    return await Todo.find({ userId });
+    return await Todo.find({ userId: userId });
   }
 
   static async create(todo) {
