@@ -1,10 +1,11 @@
 import crypto from "node:crypto";
 import { Validation } from "../validations/validations.js";
 import { TodoRepository } from "../repositories/todo-repository.js";
+import { AppError } from "../errors/AppError.js";
 const ALLOWED_UPDATE_FIELDS = ["title", "completed", "priority"];
 
 export default class TodoService {
-  static createTodo({ title, priority, userId }) {
+  static async createTodo({ title, priority, userId }) {
     Validation.title(title);
     Validation.priority(priority);
     const now = new Date().toISOString();
@@ -19,21 +20,26 @@ export default class TodoService {
       updatedAt: now,
     };
     try {
-      TodoRepository.create(todo);
+      await TodoRepository.create(todo);
     } catch (error) {
-      throw new Error(error.message);
+      throw new AppError("Create Todo Failed", 500);
     }
     return todo;
   }
 
   static async getAllTodos(userId) {
-    try {
-      const Todos = await TodoRepository.getTodosByUserId(userId);
-      return Todos;
-    } catch (error) {
-      throw new Error("Something unexpected occurred");
-    }
+    const todos = await TodoRepository.getTodosByUserId(userId);
+    return todos;
   }
+
+  // static async getAllTodos(userId) {
+  //   try {
+  //     const Todos = await TodoRepository.getTodosByUserId(userId);
+  //     return Todos;
+  //   } catch (error) {
+  //     throw new Error("Something unexpected occurred");
+  //   }
+  // }
 
   static async getTodo(todoId) {
     try {
@@ -46,14 +52,10 @@ export default class TodoService {
 
   static async updateTodo(todoId, userId, data) {
     const todo = await TodoRepository.getTodoById(todoId);
-    if (!todo) {
-      throw new Error("This todo doenst exist.");
+    if (!todo || todo.userId !== userId) {
+      throw new AppError("Todo not found", 404);
     }
-    if (todo.userId !== userId)
-      throw new Error("This todo is from another user.");
-    const cleanData = Object.fromEntries(
-      Object.entries(data).filter(([_, value]) => value !== undefined)
-    );
+
     const update = {};
     for (const key of ALLOWED_UPDATE_FIELDS) {
       if (data[key] !== undefined) {
@@ -61,23 +63,16 @@ export default class TodoService {
       }
     }
     if (Object.keys(update).length === 0) {
-      throw new Error("Nothing to update");
+      throw new AppError("Nothing to update");
     }
-    try {
-      return await TodoRepository.updateTodoById(todoId, cleanData);
-    } catch (error) {
-      throw new Error(error.message);
-    }
+    return await TodoRepository.updateTodoById(todoId, update);
   }
 
   static async deleteTodo(todoId, userId) {
     const todo = await TodoService.getTodo(todoId);
-    if (!todo) throw new Error("Todo not found");
-    if (todo.userId !== userId) throw new Error("You cant delete this todo.");
-    try {
-      return await TodoRepository.deleteTodoById(todoId);
-    } catch (error) {
-      throw new Error(error.message);
-    }
+    if (!todo) throw new AppError("Todo not found", 404);
+    if (todo.userId !== userId)
+      throw new AppError("This is not your todo", 404);
+    return await TodoRepository.deleteTodoById(todoId);
   }
 }

@@ -13,6 +13,15 @@ app.get("/", (req, res) => {
 
 app.use("/api", router);
 
+app.use((err, req, res, next) => {
+  console.error(err);
+
+  res.status(err.statusCode || 500).json({
+    ok: false,
+    message: err.message || "Unexpected error occurred",
+  });
+});
+
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
   try {

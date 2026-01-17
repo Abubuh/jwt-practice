@@ -1,3 +1,5 @@
+import { AppError } from "../errors/AppError.js";
+
 export class Validation {
   static username(username) {
     if (typeof username !== "string")
@@ -14,25 +16,26 @@ export class Validation {
   }
 
   static title(title) {
-    if (!title) throw new Error("Todo needs a title!");
-    if (typeof title !== "string") throw new Error("Title must be a string");
+    if (!title) throw new AppError("Todo needs a title!", 400);
+    if (typeof title !== "string")
+      throw new AppError("Title must be a string", 400);
     if (title.length < 3)
-      throw new Error("Title must be at least 3 characters long");
+      throw new AppError("Title must be at least 3 characters long", 400);
   }
 
   static completed(completed) {
     if (typeof completed !== "boolean")
-      throw new Error("Completed must be a boolean");
+      throw new AppError("Completed must be a boolean", 400);
     if (completed !== "true" || "false")
-      throw new Error("Completed must be true or false");
+      throw new AppError("Completed must be true or false", 400);
   }
 
   static priority(priority) {
-    if (!priority) throw new Error("Todo needs a priority");
+    if (!priority) throw new AppError("Todo needs a priority", 400);
     if (typeof priority !== "string")
-      throw new Error("Priority must be a string");
+      throw new AppError("Priority must be a string", 400);
     const priorities = ["low", "medium", "high"];
     if (!priorities.includes(priority.toString().toLowerCase()))
-      throw new Error("Priority must be at least Low, Medium or High");
+      throw new AppError("Priority must be at least Low, Medium or High", 400);
   }
 }
