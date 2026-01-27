@@ -1,6 +1,13 @@
 export class AppError extends Error {
-  constructor(message, statusCode = 500) {
+  constructor(
+    message,
+    statusCode = 500,
+    code = "INTERNAL_ERROR",
+    originalError = null
+  ) {
     super(message);
     this.statusCode = statusCode;
+    this.code = code;
+    this.originalError = originalError;
   }
 }

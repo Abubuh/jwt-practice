@@ -7,27 +7,18 @@ const router = express.Router();
 router.post("/create/todo", authMiddleware, async (req, res, next) => {
   try {
     const { title, priority } = req.body;
+    console.log(title, priority);
     const userId = req.user.userId;
     const todo = await TodoService.createTodo({ title, priority, userId });
     return res.status(201).json({
       ok: true,
-      message: "Se ha creado todo",
+      message: "Todo created",
       data: todo,
     });
   } catch (error) {
     next(error);
   }
 });
-
-// router.get("/user/todos", authMiddleware, async (req, res) => {
-//   try {
-//     const userId = req.user.userId;
-//     const Todos = await TodoService.getAllTodos(userId);
-//     return res.status(200).json(Todos);
-//   } catch (error) {
-//     res.status(500).json({ message: "Unexpected error occurred" });
-//   }
-// });
 
 router.get("/user/todos", authMiddleware, async (req, res, next) => {
   try {
@@ -65,6 +56,7 @@ router.delete("/user/todo/:id", authMiddleware, async (req, res, next) => {
   try {
     const todoId = req.params.id;
     const userId = req.user.userId;
+    console.log(todoId, userId);
     await TodoService.deleteTodo(todoId, userId);
     res.json(200).json({
       ok: true,
@@ -75,11 +67,17 @@ router.delete("/user/todo/:id", authMiddleware, async (req, res, next) => {
   }
 });
 
-router.get("/todos/test", authMiddleware, (req, res) => {
-  res.json({
-    message: "Token valido",
-    user: req.user,
-  });
+router.get("/user/todos/:id", authMiddleware, async (req, res, next) => {
+  const userId = req.user.userId;
+  const todoId = req.params.id;
+  try {
+    const todo = await TodoService.getTodo(todoId, userId);
+    res.status(200).json({
+      ok: true,
+      data: todo,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
-
 export default router;

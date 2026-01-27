@@ -22,7 +22,7 @@ export default class TodoService {
     try {
       await TodoRepository.create(todo);
     } catch (error) {
-      throw new AppError("Create Todo Failed", 500);
+      throw new Error("Create Todo Failed", 500, "TODO_CREATE_FAILED", error);
     }
     return todo;
   }
@@ -41,12 +41,13 @@ export default class TodoService {
   //   }
   // }
 
-  static async getTodo(todoId) {
+  static async getTodo(todoId, userId) {
     try {
       const Todo = await TodoRepository.getTodoById(todoId);
+      if (Todo.userId !== userId) throw new AppError("Todo not found", 400);
       return Todo;
     } catch (error) {
-      throw new Error("Todo not found");
+      throw new AppError("Todo not found", 400);
     }
   }
 
@@ -63,13 +64,13 @@ export default class TodoService {
       }
     }
     if (Object.keys(update).length === 0) {
-      throw new AppError("Nothing to update");
+      throw new AppError("Nothing to update", 400);
     }
     return await TodoRepository.updateTodoById(todoId, update);
   }
 
   static async deleteTodo(todoId, userId) {
-    const todo = await TodoService.getTodo(todoId);
+    const todo = await TodoService.getTodo(todoId, userId);
     if (!todo) throw new AppError("Todo not found", 404);
     if (todo.userId !== userId)
       throw new AppError("This is not your todo", 404);

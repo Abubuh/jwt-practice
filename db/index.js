@@ -3,6 +3,7 @@ import { PORT } from "./config.js";
 import cors from "cors";
 import router from "./routes/todo.js";
 import { UserService } from "./services/auth.service.js";
+import { errorHandler } from "./middlewares/errorHandler.js";
 
 const app = express();
 app.use(express.json());
@@ -12,15 +13,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api", router);
-
-app.use((err, req, res, next) => {
-  console.error(err);
-
-  res.status(err.statusCode || 500).json({
-    ok: false,
-    message: err.message || "Unexpected error occurred",
-  });
-});
+app.use(errorHandler);
 
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
