@@ -3,16 +3,16 @@ import { AppError } from "../errors/AppError.js";
 export class Validation {
   static username(username) {
     if (typeof username !== "string")
-      throw new Error("username must be a string");
+      throw new AppError("username must be a string", 400);
     if (username.length < 5)
-      throw new Error("username must be at least 5 characters long");
+      throw new AppError("username must be at least 5 characters long", 400);
   }
 
   static password(password) {
     if (typeof password !== "string")
-      throw new Error("password must be a string");
+      throw new AppError("password must be a string", 400);
     if (password.length < 6)
-      throw new Error("password must be at least 6 characters long");
+      throw new AppError("password must be at least 6 characters long", 400);
   }
 
   static title(title) {

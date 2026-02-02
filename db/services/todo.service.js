@@ -22,7 +22,12 @@ export default class TodoService {
     try {
       await TodoRepository.create(todo);
     } catch (error) {
-      throw new Error("Create Todo Failed", 500, "TODO_CREATE_FAILED", error);
+      throw new AppError(
+        "Create Todo Failed",
+        500,
+        "TODO_CREATE_FAILED",
+        error
+      );
     }
     return todo;
   }
@@ -31,15 +36,6 @@ export default class TodoService {
     const todos = await TodoRepository.getTodosByUserId(userId);
     return todos;
   }
-
-  // static async getAllTodos(userId) {
-  //   try {
-  //     const Todos = await TodoRepository.getTodosByUserId(userId);
-  //     return Todos;
-  //   } catch (error) {
-  //     throw new Error("Something unexpected occurred");
-  //   }
-  // }
 
   static async getTodo(todoId, userId) {
     try {
