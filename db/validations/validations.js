@@ -15,23 +15,45 @@ export class Validation {
       throw new AppError("password must be at least 6 characters long", 400);
   }
 
-  static title(title) {
-    if (!title) throw new AppError("Todo needs a title!", 400);
-    if (typeof title !== "string")
+  static title(title, { required = true } = {}) {
+    if (title === undefined) {
+      if (required) {
+        throw new AppError("Todo needs a title!", 400);
+      }
+      return;
+    }
+
+    if (typeof title !== "string") {
       throw new AppError("Title must be a string", 400);
-    if (title.length < 3)
+    }
+
+    if (title.trim().length === 0) {
+      throw new AppError("Title cannot be empty", 400);
+    }
+
+    if (title.length < 3) {
       throw new AppError("Title must be at least 3 characters long", 400);
+    }
   }
 
-  static completed(completed) {
+  static completed(completed, { required = true } = {}) {
+    if (completed === undefined) {
+      if (required) {
+        throw new AppError("Completed is required", 400);
+      }
+      return;
+    }
     if (typeof completed !== "boolean")
       throw new AppError("Completed must be a boolean", 400);
-    if (completed !== "true" || "false")
-      throw new AppError("Completed must be true or false", 400);
   }
 
-  static priority(priority) {
-    if (!priority) throw new AppError("Todo needs a priority", 400);
+  static priority(priority, { required = true } = {}) {
+    if (priority === undefined) {
+      if (required) {
+        throw new AppError("Todo needs a priority", 400);
+      }
+      return;
+    }
     if (typeof priority !== "string")
       throw new AppError("Priority must be a string", 400);
     const priorities = ["low", "medium", "high"];

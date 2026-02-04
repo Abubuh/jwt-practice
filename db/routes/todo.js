@@ -1,24 +1,30 @@
 import express from "express";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import TodoService from "../services/todo.service.js";
+import { validateCreateTodo } from "../middlewares/validateCreateTodo.js";
+import { validateUpdateTodo } from "../middlewares/validateUpdateTodo.js";
 
 const router = express.Router();
 
-router.post("/create/todo", authMiddleware, async (req, res, next) => {
-  try {
-    const { title, priority } = req.body;
-    console.log(title, priority);
-    const userId = req.user.userId;
-    const todo = await TodoService.createTodo({ title, priority, userId });
-    return res.status(201).json({
-      ok: true,
-      message: "Todo created",
-      data: todo,
-    });
-  } catch (error) {
-    next(error);
+router.post(
+  "/create/todo",
+  authMiddleware,
+  validateCreateTodo,
+  async (req, res, next) => {
+    try {
+      const { title, priority } = req.body;
+      const userId = req.user.userId;
+      const todo = await TodoService.createTodo({ title, priority, userId });
+      return res.status(201).json({
+        ok: true,
+        message: "Todo created",
+        data: todo,
+      });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 router.get("/user/todos", authMiddleware, async (req, res, next) => {
   try {
@@ -33,24 +39,29 @@ router.get("/user/todos", authMiddleware, async (req, res, next) => {
   }
 });
 
-router.put("/user/todos/update/:id", authMiddleware, async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const userId = req.user.userId;
-    const { title, completed, priority } = req.body;
-    await TodoService.updateTodo(id, userId, {
-      title,
-      completed,
-      priority,
-    });
-    res.status(200).json({
-      ok: true,
-      message: "Todo updated",
-    });
-  } catch (error) {
-    next(error);
+router.patch(
+  "/user/todos/update/:id",
+  authMiddleware,
+  validateUpdateTodo,
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.userId;
+      const { title, completed, priority } = req.body;
+      await TodoService.updateTodo(id, userId, {
+        title,
+        completed,
+        priority,
+      });
+      res.status(200).json({
+        ok: true,
+        message: "Todo updated",
+      });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 router.delete("/user/todo/:id", authMiddleware, async (req, res, next) => {
   try {

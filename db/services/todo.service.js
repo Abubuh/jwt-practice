@@ -1,13 +1,10 @@
 import crypto from "node:crypto";
-import { Validation } from "../validations/validations.js";
 import { TodoRepository } from "../repositories/todo-repository.js";
 import { AppError } from "../errors/AppError.js";
 const ALLOWED_UPDATE_FIELDS = ["title", "completed", "priority"];
 
 export default class TodoService {
   static async createTodo({ title, priority, userId }) {
-    Validation.title(title);
-    Validation.priority(priority);
     const now = new Date().toISOString();
 
     const todo = {
@@ -52,7 +49,6 @@ export default class TodoService {
     if (!todo || todo.userId !== userId) {
       throw new AppError("Todo not found", 404);
     }
-
     const update = {};
     for (const key of ALLOWED_UPDATE_FIELDS) {
       if (data[key] !== undefined) {

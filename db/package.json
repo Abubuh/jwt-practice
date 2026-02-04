@@ -8,7 +8,9 @@
     "jsonwebtoken": "^9.0.3"
   },
   "devDependencies": {
-    "standard": "^17.1.2"
+    "standard": "^17.1.2",
+    "supertest": "^7.2.2",
+    "vitest": "^4.0.18"
   },
   "eslintConfig": {
     "extends": "standard"
@@ -19,7 +21,8 @@
   "type": "module",
   "scripts": {
     "dev": "node --watch index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest",
+    "test:watch": "vitest --watch"
   },
   "author": "",
   "license": "ISC",
