@@ -4,6 +4,7 @@ import { Validation } from "../validations/validations.js";
 const ALLOWED_UPDATE_FIELDS = ["title", "completed", "priority"];
 export const validateUpdateTodo = (req, res, next) => {
   const body = req.body;
+  console.log("USED");
   if (!body || Object.keys(body).length === 0) {
     return next(new AppError("Nothing to update", 400));
   }

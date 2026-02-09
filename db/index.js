@@ -43,3 +43,5 @@ app.get("/protected", (req, res) => {});
 app.listen(PORT, () => {
   console.log("Hello from port", PORT);
 });
+
+export default app;

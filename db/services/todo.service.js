@@ -45,20 +45,15 @@ export default class TodoService {
   }
 
   static async updateTodo(todoId, userId, data) {
+    if (!data || Object.keys(data).length === 0) {
+      throw new AppError("Nothing to update", 400);
+    }
     const todo = await TodoRepository.getTodoById(todoId);
     if (!todo || todo.userId !== userId) {
       throw new AppError("Todo not found", 404);
     }
-    const update = {};
-    for (const key of ALLOWED_UPDATE_FIELDS) {
-      if (data[key] !== undefined) {
-        update[key] = data[key];
-      }
-    }
-    if (Object.keys(update).length === 0) {
-      throw new AppError("Nothing to update", 400);
-    }
-    return await TodoRepository.updateTodoById(todoId, update);
+    console.log(data);
+    return await TodoRepository.updateTodoById(todoId, data);
   }
 
   static async deleteTodo(todoId, userId) {

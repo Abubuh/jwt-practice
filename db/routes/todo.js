@@ -3,6 +3,7 @@ import { authMiddleware } from "../middlewares/auth.middleware.js";
 import TodoService from "../services/todo.service.js";
 import { validateCreateTodo } from "../middlewares/validateCreateTodo.js";
 import { validateUpdateTodo } from "../middlewares/validateUpdateTodo.js";
+import { updateTodoController } from "../controllers/todo.controller.js";
 
 const router = express.Router();
 
@@ -43,24 +44,7 @@ router.patch(
   "/user/todos/update/:id",
   authMiddleware,
   validateUpdateTodo,
-  async (req, res, next) => {
-    try {
-      const { id } = req.params;
-      const userId = req.user.userId;
-      const { title, completed, priority } = req.body;
-      await TodoService.updateTodo(id, userId, {
-        title,
-        completed,
-        priority,
-      });
-      res.status(200).json({
-        ok: true,
-        message: "Todo updated",
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
+  updateTodoController
 );
 
 router.delete("/user/todo/:id", authMiddleware, async (req, res, next) => {
