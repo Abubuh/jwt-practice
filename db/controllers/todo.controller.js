@@ -21,3 +21,31 @@ export const updateTodoController = async (req, res, next) => {
     next(error);
   }
 };
+
+export const createTodoController = async (req, res, next) => {
+  try {
+    const { title, priority } = req.body;
+    const userId = req.user.userId;
+    const todo = await TodoService.createTodo({ title, priority, userId });
+    return res.status(201).json({
+      ok: true,
+      message: "Todo created",
+      data: todo,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getTodosController = async (req, res, next) => {
+  try {
+    const userId = req.user.userId;
+    const todos = await TodoService.getAllTodos(userId);
+    res.status(200).json({
+      ok: true,
+      data: todos,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

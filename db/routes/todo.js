@@ -3,7 +3,11 @@ import { authMiddleware } from "../middlewares/auth.middleware.js";
 import TodoService from "../services/todo.service.js";
 import { validateCreateTodo } from "../middlewares/validateCreateTodo.js";
 import { validateUpdateTodo } from "../middlewares/validateUpdateTodo.js";
-import { updateTodoController } from "../controllers/todo.controller.js";
+import {
+  createTodoController,
+  getTodosController,
+  updateTodoController,
+} from "../controllers/todo.controller.js";
 
 const router = express.Router();
 
@@ -11,34 +15,10 @@ router.post(
   "/create/todo",
   authMiddleware,
   validateCreateTodo,
-  async (req, res, next) => {
-    try {
-      const { title, priority } = req.body;
-      const userId = req.user.userId;
-      const todo = await TodoService.createTodo({ title, priority, userId });
-      return res.status(201).json({
-        ok: true,
-        message: "Todo created",
-        data: todo,
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
+  createTodoController
 );
 
-router.get("/user/todos", authMiddleware, async (req, res, next) => {
-  try {
-    const userId = req.user.userId;
-    const todos = await TodoService.getAllTodos(userId);
-    res.status(200).json({
-      ok: true,
-      data: todos,
-    });
-  } catch (error) {
-    next(error);
-  }
-});
+router.get("/user/todos", authMiddleware, getTodosController);
 
 router.patch(
   "/user/todos/update/:id",
@@ -47,7 +27,7 @@ router.patch(
   updateTodoController
 );
 
-router.delete("/user/todo/:id", authMiddleware, async (req, res, next) => {
+router.delete("/user/todos/:id", authMiddleware, async (req, res, next) => {
   try {
     const todoId = req.params.id;
     const userId = req.user.userId;

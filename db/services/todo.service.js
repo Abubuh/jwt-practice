@@ -1,7 +1,6 @@
 import crypto from "node:crypto";
 import { TodoRepository } from "../repositories/todo-repository.js";
 import { AppError } from "../errors/AppError.js";
-const ALLOWED_UPDATE_FIELDS = ["title", "completed", "priority"];
 
 export default class TodoService {
   static async createTodo({ title, priority, userId }) {
@@ -10,7 +9,7 @@ export default class TodoService {
     const todo = {
       _id: crypto.randomUUID(),
       title: title,
-      priority: priority,
+      priority: priority ?? "low",
       userId: userId,
       completed: false,
       createdAt: now,
@@ -58,9 +57,8 @@ export default class TodoService {
 
   static async deleteTodo(todoId, userId) {
     const todo = await TodoService.getTodo(todoId, userId);
-    if (!todo) throw new AppError("Todo not found", 404);
-    if (todo.userId !== userId)
-      throw new AppError("This is not your todo", 404);
+    if (!todo || todo.userId !== userId)
+      throw new AppError("Todo not found", 404);
     return await TodoRepository.deleteTodoById(todoId);
   }
 }
