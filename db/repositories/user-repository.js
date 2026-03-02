@@ -10,9 +10,8 @@ export const User = Schema("User", {
 });
 //UserRepository- Se encarga de CRUD
 export class UserRepository {
-  static async findByUsername({ username }) {
-    const user = await User.findOne({ username });
-    return user;
+  static async findByUsername(username) {
+    return await User.findOne({ username });
   }
 
   static async createUser({ id, username, hashedPassword }) {

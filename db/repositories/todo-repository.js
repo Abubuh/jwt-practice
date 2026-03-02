@@ -9,6 +9,7 @@ const Todo = Schema("Todo", {
   priority: { type: String, required: true },
   createdAt: { type: String, required: true },
   updatedAt: { type: String, required: true },
+  order: { type: Number, null: false },
 });
 
 export class TodoRepository {
@@ -37,5 +38,16 @@ export class TodoRepository {
 
   static async deleteTodoById(todoId) {
     return await Todo.remove({ _id: todoId });
+  }
+
+  static async getTodosByUserPaginated(userId, skip, limit) {
+    return await TodoModel.find({ userId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+  }
+
+  static async countTodosByUser(userId) {
+    return await TodoModel.countDocuments({ userId });
   }
 }

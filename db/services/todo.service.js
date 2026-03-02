@@ -5,15 +5,17 @@ import { AppError } from "../errors/AppError.js";
 export default class TodoService {
   static async createTodo({ title, priority, userId }) {
     const now = new Date().toISOString();
-
+    const todos = await TodoRepository.getTodosByUserId(userId);
+    const totalTodos = todos.length;
     const todo = {
       _id: crypto.randomUUID(),
-      title: title,
+      title: title.trim().replace(/\s+/g, " "),
       priority: priority ?? "low",
       userId: userId,
       completed: false,
       createdAt: now,
       updatedAt: now,
+      order: totalTodos + 1,
     };
     try {
       await TodoRepository.create(todo);

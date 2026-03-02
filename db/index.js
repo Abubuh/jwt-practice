@@ -15,24 +15,31 @@ app.get("/", (req, res) => {
 app.use("/api", router);
 app.use(errorHandler);
 
-app.post("/login", async (req, res) => {
+app.post("/login", async (req, res, next) => {
   const { username, password } = req.body;
+  const normalizedUsername = username.toLowerCase();
   try {
-    const user = await UserService.login({ username, password });
-    res.send({ user });
+    const user = await UserService.login({
+      username: normalizedUsername,
+      password,
+    });
+    res.send(user);
   } catch (error) {
-    res.status(401).send(error.message);
+    next(error);
   }
 });
 
-app.post("/register", async (req, res) => {
+app.post("/register", async (req, res, next) => {
   const { username, password } = req.body;
+  const normalizedUsername = username.toLowerCase();
   try {
-    const id = await UserService.create({ username, password });
-    res.send({ id });
+    const user = await UserService.create({
+      username: normalizedUsername,
+      password,
+    });
+    res.status(201).json(user);
   } catch (error) {
-    //Checar video para mejorar mensajes de errores :d (como manejar errores como un senior)
-    res.status(400).send(error.message);
+    next(error);
   }
 });
 
@@ -44,4 +51,17 @@ app.listen(PORT, () => {
   console.log("Hello from port", PORT);
 });
 
+app.use((err, req, res, next) => {
+  if (err.isOperational) {
+    return res.status(err.statusCode).json({
+      message: err.message,
+    });
+  }
+
+  console.error(err);
+
+  return res.status(500).json({
+    message: "Internal server error",
+  });
+});
 export default app;

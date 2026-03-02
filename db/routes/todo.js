@@ -10,28 +10,26 @@ import {
 } from "../controllers/todo.controller.js";
 
 const router = express.Router();
+router.use(authMiddleware);
 
-router.post(
-  "/create/todo",
-  authMiddleware,
-  validateCreateTodo,
-  createTodoController
-);
+router.get("/auth/validate", authMiddleware, (req, res) => {
+  res.json({ valid: true });
+});
 
-router.get("/user/todos", authMiddleware, getTodosController);
+router.post("/create/todo", validateCreateTodo, createTodoController);
+
+router.get("/user/todos", getTodosController);
 
 router.patch(
   "/user/todos/update/:id",
-  authMiddleware,
   validateUpdateTodo,
   updateTodoController
 );
 
-router.delete("/user/todos/:id", authMiddleware, async (req, res, next) => {
+router.delete("/user/todos/:id", async (req, res, next) => {
   try {
     const todoId = req.params.id;
     const userId = req.user.userId;
-    console.log(todoId, userId);
     await TodoService.deleteTodo(todoId, userId);
     res.json(200).json({
       ok: true,
@@ -42,7 +40,7 @@ router.delete("/user/todos/:id", authMiddleware, async (req, res, next) => {
   }
 });
 
-router.get("/user/todos/:id", authMiddleware, async (req, res, next) => {
+router.get("/user/todos/:id", async (req, res, next) => {
   const userId = req.user.userId;
   const todoId = req.params.id;
   try {

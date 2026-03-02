@@ -3,16 +3,16 @@ import { AppError } from "../errors/AppError.js";
 export class Validation {
   static username(username) {
     if (typeof username !== "string")
-      throw new AppError("username must be a string", 400);
+      throw new AppError("Username must be a string", 400);
     if (username.length < 5)
-      throw new AppError("username must be at least 5 characters long", 400);
+      throw new AppError("Username must be at least 5 characters long", 400);
   }
 
   static password(password) {
     if (typeof password !== "string")
-      throw new AppError("password must be a string", 400);
+      throw new AppError("Password must be a string", 400);
     if (password.length < 6)
-      throw new AppError("password must be at least 6 characters long", 400);
+      throw new AppError("Password must be at least 6 characters long", 400);
   }
 
   static title(title, { required = true } = {}) {
@@ -22,7 +22,6 @@ export class Validation {
       }
       return;
     }
-
     if (typeof title !== "string") {
       throw new AppError("Title must be a string", 400);
     }
@@ -31,7 +30,7 @@ export class Validation {
       throw new AppError("Title cannot be empty", 400);
     }
 
-    if (title.length < 3) {
+    if (title.trim().length < 4) {
       throw new AppError("Title must be at least 3 characters long", 400);
     }
   }
