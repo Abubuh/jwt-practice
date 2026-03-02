@@ -1,38 +1,43 @@
-import axios from 'axios';
 import React, { useState } from 'react';
+import api from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import UserForm from '../components/UserForm';
+import UserFormTitle from '../components/UserFormTitle';
+import UserFormContainer from '../components/UserFormContainer';
+import UserFormRouter from '../components/UserFormRouter';
 
 const Register = () => {
-  const [form, setForm] = useState({
-    username: '',
-    password: '',
-  });
-  const [message, setMessage] = useState()
-  const [error, setError] = useState()
-  const handleChange = (e) => {
-    const {name, value} = e.target
-    setForm(prev => ({...prev, [name]: value}))
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    try{
-      const result = await axios.post('http://localhost:3000/register', form)
-      setError('')
-      if(result) setMessage('User created!')
-      //redirigir a una pagina home
-    }catch(error){
-      setError(error.response?.data)
+  const navigate = useNavigate();
+  const [error, setError] = useState();
+  const [loading, setLoading] = useState(false);
+  const handleSubmit = async (form) => {
+    setError('');
+    setLoading(true);
+    try {
+      const result = await api.post('http://localhost:3000/register', form);
+      localStorage.setItem('token', result.data.token);
+      navigate('/dashboard');
+    } catch (error) {
+      setError(error.response?.data?.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
     }
   };
   return (
-    <div className='flex justify-center h-screen items-center '>
-      <form action="" onSubmit={handleSubmit} className='flex flex-col gap-2 border-2 border-black p-6 rounded-md'>
-        <input type="text" name='username' className='border-2 w-fit rounded-md border-black px-2 py-1' placeholder='Username'  onChange={handleChange} value={form.username}/>
-        <input name='password' className='border-2 rounded-md w-fit border-black px-2 py-1' placeholder='Password' type='password' onChange={handleChange} value={form.password}/>
-        {error && <p className='text-red-500 text-center'>{error}</p>}
-        <button className='border-black border-2 rounded-md py-1 w-1/2 self-center'>Register</button>
-      </form>
-    </div>
+    <UserFormContainer>
+      <UserFormTitle title="Register 👋" />
+      <UserForm
+        buttonText="Register"
+        error={error}
+        loading={loading}
+        onSubmit={handleSubmit}
+      />
+      <UserFormRouter
+        action="Login"
+        message="Already have an account?"
+        route="/login"
+      />
+    </UserFormContainer>
   );
 };
 
