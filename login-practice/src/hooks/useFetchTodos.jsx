@@ -21,6 +21,23 @@ const useFetchTodos = () => {
     fetchTodos();
   }, []);
 
+  const handleReorder = async (newTodos) => {
+  // 1️⃣ Actualización optimista
+  console.log(newTodos)
+  setTodos(newTodos);
+  try {
+    await api.patch("/api/user/todos/reorder", {
+      todos: newTodos.map((todo, index) => ({
+        id: todo._id,
+        order: index,
+      })),
+    });
+  } catch (error) {
+    console.error(error);
+    // aquí podrías volver al estado anterior si falla
+  }
+};
+
   const handleDelete = async (id) => {
     setLoading(true);
     try {
@@ -38,6 +55,7 @@ const useFetchTodos = () => {
     errorTodos,
     loading,
     handleDelete,
+    handleReorder
   };
 };
 export default useFetchTodos;

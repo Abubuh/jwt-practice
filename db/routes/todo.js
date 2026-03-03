@@ -6,6 +6,7 @@ import { validateUpdateTodo } from "../middlewares/validateUpdateTodo.js";
 import {
   createTodoController,
   getTodosController,
+  reorderController,
   updateTodoController,
 } from "../controllers/todo.controller.js";
 
@@ -27,6 +28,7 @@ router.patch(
 );
 
 router.delete("/user/todos/:id", async (req, res, next) => {
+  console.log("BORRAO");
   try {
     const todoId = req.params.id;
     const userId = req.user.userId;
@@ -53,4 +55,7 @@ router.get("/user/todos/:id", async (req, res, next) => {
     next(error);
   }
 });
+
+router.patch("/user/todos/reorder", authMiddleware, reorderController);
+
 export default router;

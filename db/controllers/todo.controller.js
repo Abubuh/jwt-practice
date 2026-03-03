@@ -50,3 +50,16 @@ export const getTodosController = async (req, res, next) => {
     next(error);
   }
 };
+export const reorderController = async (req, res, next) => {
+  try {
+    const { todos } = req.body;
+    const userId = req.user.userId;
+    const reorderedTodos = await TodoService.reorderTodos(userId, todos);
+    res.status(200).json({
+      ok: true,
+      data: reorderedTodos,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

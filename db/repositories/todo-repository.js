@@ -1,5 +1,5 @@
 import dbLocal from "db-local";
-const { Schema } = new dbLocal({ path: "./db" });
+const { db, Schema } = new dbLocal({ path: "./db" });
 
 const Todo = Schema("Todo", {
   _id: { type: String, required: true },
@@ -14,7 +14,8 @@ const Todo = Schema("Todo", {
 
 export class TodoRepository {
   static async getTodosByUserId(userId) {
-    return await Todo.find({ userId: userId });
+    const todos = Todo.find({ userId: userId });
+    return todos.sort((a, b) => a.order - b.order);
   }
 
   static async create(todo) {
@@ -47,6 +48,20 @@ export class TodoRepository {
       .limit(limit);
   }
 
+  static async updateOrder(userId, reordered) {
+    for (const updated of reordered) {
+      const todo = await Todo.findOne({
+        _id: updated.id,
+        userId: userId,
+      });
+      console.log("buscando:", updated.id);
+      console.log("ENCONTRADO:", todo);
+      if (todo) {
+        todo.order = updated.order;
+        await todo.save();
+      }
+    }
+  }
   static async countTodosByUser(userId) {
     return await TodoModel.countDocuments({ userId });
   }

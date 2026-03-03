@@ -63,4 +63,24 @@ export default class TodoService {
       throw new AppError("Todo not found", 404);
     return await TodoRepository.deleteTodoById(todoId);
   }
+
+  static async reorderTodos(userId, todosFromClient) {
+    // Asegurarse que todos pertenezcan al usuario
+    const userTodos = await TodoRepository.getTodosByUserId(userId);
+
+    const validIds = userTodos.map((t) => t._id);
+
+    const filtered = todosFromClient.filter((t) => validIds.includes(t.id));
+    if (filtered.length !== todosFromClient.length) {
+      throw new AppError("Invalid todos for this user", 403);
+    }
+    // Reasignar order limpio
+    const reordered = filtered.map((todo, index) => ({
+      id: todo.id,
+      order: index,
+    }));
+
+    await TodoRepository.updateOrder(userId, reordered);
+    return reordered;
+  }
 }
