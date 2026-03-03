@@ -13,7 +13,7 @@ export default function CreateTask() {
     try {
       await api.get("/api/auth/validate");
     } catch {
-      localStorage.removeItem("token");
+      setToken(null);
       window.location.href = "/login";
     }
   };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TodoCard from '../components/TodoCard';
 import useFetchTodos from '../hooks/useFetchTodos';
@@ -11,7 +11,8 @@ import TodosContainer from '../components/TodosContainer';
 import { Reorder, motion } from "framer-motion";
 import EmptyState from '../components/EmptyState';
 import TodoSkeleton from '../components/TodoSkeleton';
-
+import { useAuth } from '../routes/AuthContext';
+import api from '../services/api';
 const Dashboard = () => {
   const [errorDelete, setErrorDelete] = useState();
 
@@ -19,9 +20,17 @@ const Dashboard = () => {
     useFetchTodos();
 
   const navigate = useNavigate();
+  const { token, setToken } = useAuth()
+  
+  useEffect(() => {
+  if (token === null) {
+    navigate("/login");
+  }
+}, [token]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    delete api.defaults.headers.common["Authorization"];
+    setToken(null);
     navigate('/login');
   };
 

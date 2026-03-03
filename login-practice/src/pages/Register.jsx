@@ -5,17 +5,21 @@ import UserForm from '../components/UserForm';
 import UserFormTitle from '../components/UserFormTitle';
 import UserFormContainer from '../components/UserFormContainer';
 import UserFormRouter from '../components/UserFormRouter';
-
+import { useAuth } from '../routes/AuthContext';
 const Register = () => {
   const navigate = useNavigate();
   const [error, setError] = useState();
   const [loading, setLoading] = useState(false);
+  const { setToken } = useAuth()
+ 
   const handleSubmit = async (form) => {
     setError('');
     setLoading(true);
     try {
       const result = await api.post('http://localhost:3000/register', form);
-      localStorage.setItem('token', result.data.token);
+      const token = result.data.token
+      setToken(token)
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       navigate('/dashboard');
     } catch (error) {
       setError(error.response?.data?.message || 'Something went wrong');

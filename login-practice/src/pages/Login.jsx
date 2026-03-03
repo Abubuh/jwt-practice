@@ -5,20 +5,24 @@ import UserForm from '../components/UserForm';
 import UserFormTitle from '../components/UserFormTitle';
 import UserFormContainer from '../components/UserFormContainer';
 import UserFormRouter from '../components/UserFormRouter';
+import { useAuth } from '../routes/AuthContext';
+
 const Login = () => {
   const navigate = useNavigate();
   const [error, setError] = useState();
   const [loading, setLoading] = useState();
+  const {token, setToken} = useAuth()
   useEffect(() => {
-    const token = localStorage.getItem('token');
     if (token) navigate('/dashboard');
-  }, []);
-
+  }, [token]);
+  
   const handleSubmit = async (form) => {
     setLoading(true);
     try {
-      const result = await api.post('/login', form);
-      localStorage.setItem('token', result.data.token);
+      const res = await api.post('/login', form);
+      const token = res.data.token
+      setToken(token);
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       navigate('/dashboard');
     } catch (error) {
       setError(error.response?.data?.message || 'Oh no, something went wrong');
