@@ -4,11 +4,12 @@ import api from '../services/api';
 const useFetchTodos = () => {
   const [todos, setTodos] = useState([]);
   const [errorTodos, setErrorTodos] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTodos = async () => {
-        setLoading(true)
+      setErrorTodos(false)
+      setLoading(true)
       try {
         const result = await api.get('/api/user/todos');
         setTodos(result.data.data);
