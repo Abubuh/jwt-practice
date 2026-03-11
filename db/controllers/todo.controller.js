@@ -1,4 +1,34 @@
 import TodoService from "../services/todo.service.js";
+
+export const getTodosController = async (req, res, next) => {
+  try {
+    const listId = req.params.listId;
+    const userId = req.user.userId;
+    const todos = await TodoService.getAllTodos({ listId, userId });
+    res.status(200).json({
+      ok: true,
+      data: todos,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const createTodoController = async (req, res, next) => {
+  try {
+    const { title, priority } = req.body;
+    const userId = req.user.userId;
+    const todo = await TodoService.createTodo({ title, priority, userId });
+    return res.status(201).json({
+      ok: true,
+      message: "Todo created",
+      data: todo,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateTodoController = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -23,33 +53,20 @@ export const updateTodoController = async (req, res, next) => {
   }
 };
 
-export const createTodoController = async (req, res, next) => {
+export const deleteController = async (req, res, next) => {
   try {
-    const { title, priority } = req.body;
+    const todoId = req.params.id;
     const userId = req.user.userId;
-    const todo = await TodoService.createTodo({ title, priority, userId });
-    return res.status(201).json({
+    await TodoService.deleteTodo(todoId, userId);
+    res.json(200).json({
       ok: true,
-      message: "Todo created",
-      data: todo,
+      message: "Todo deleted",
     });
   } catch (error) {
     next(error);
   }
 };
 
-export const getTodosController = async (req, res, next) => {
-  try {
-    const userId = req.user.userId;
-    const todos = await TodoService.getAllTodos(userId);
-    res.status(200).json({
-      ok: true,
-      data: todos,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
 export const reorderController = async (req, res, next) => {
   try {
     const { todos } = req.body;

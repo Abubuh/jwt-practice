@@ -13,7 +13,7 @@ const Todo = Schema("Todo", {
 });
 
 export class TodoRepository {
-  static async getTodosByUserId(userId) {
+  static async getTodosByListId(userId) {
     const todos = Todo.find({ userId: userId });
     return todos.sort((a, b) => a.order - b.order);
   }

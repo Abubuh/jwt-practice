@@ -1,25 +1,26 @@
-import DBLocal from "db-local";
+import { pool } from "../db/db.js";
 
-const { Schema } = new DBLocal({ path: "./db" });
-
-export const User = Schema("User", {
-  //preguntar que hace _   Se le asigna un valor si no lo hago yo
-  _id: { type: String, required: true },
-  username: { type: String, required: true },
-  password: { type: String, require: true },
-});
 //UserRepository- Se encarga de CRUD
 export class UserRepository {
   static async findByUsername(username) {
-    return await User.findOne({ username });
+    const result = await pool.query(
+      `SELECT id, username, password_hash
+     FROM users
+     WHERE username = $1`,
+      [username]
+    );
+
+    return result.rows[0];
   }
 
-  static async createUser({ id, username, hashedPassword }) {
-    await User.create({
-      _id: id,
-      username,
-      password: hashedPassword,
-    }).save();
-    return id;
+  static async createUser({ id, username, passwordHash }) {
+    const result = await pool.query(
+      `INSERT INTO users (id, username, password_hash)
+     VALUES ($1, $2, $3)
+     RETURNING id, username`,
+      [id, username, passwordHash]
+    );
+
+    return result.rows[0];
   }
 }

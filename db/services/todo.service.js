@@ -30,8 +30,8 @@ export default class TodoService {
     return todo;
   }
 
-  static async getAllTodos(userId) {
-    const todos = await TodoRepository.getTodosByUserId(userId);
+  static async getAllTodos({ listId, userId }) {
+    const todos = await TodoRepository.getTodosByListId({ listId, userId });
     return todos;
   }
 

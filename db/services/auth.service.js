@@ -12,31 +12,23 @@ export class UserService {
   static generateToken({ id, username }) {
     return jwt.sign({ userId: id, username }, JWT_SECRET, { expiresIn: "1h" });
   }
-
   static async login({ username, password }) {
-    Validation.username(username);
-    Validation.password(password);
     const normalizedUsername = username.toLowerCase();
-    console.log(normalizedUsername);
     const user = await UserRepository.findByUsername(normalizedUsername);
-    if (!user) throw new AppError("Invalid credentials", 400);
-    const isValid = await bcrypt.compare(password, user.password);
-    if (!isValid) throw new AppError("Invalid credentials", 400);
-
-    //const { password: _, ...publicUser } = user; - no usaremos publicUser
-
-    //Creamos token(usamos jwt del paquete, .sign para iniciarlo, le pasamos el id y username en el primer objeto, en el segundo pasamos el secret y en cuanto tiempo expira)
+    if (!user) {
+      throw new AppError("Invalid credentials", 401);
+    }
+    const isValid = await bcrypt.compare(password, user.password_hash);
+    if (!isValid) {
+      throw new AppError("Invalid credentials", 401);
+    }
     const token = this.generateToken({
-      id: user._id,
+      id: user.id,
       username: user.username,
     });
-
-    // return publicUser, token; - Simplificado, mas rapido (No recomendada)
-
     return {
-      //mejor control de informacion
+      id: user.id,
       username: user.username,
-      id: user._id,
       token,
     };
   }
@@ -45,22 +37,25 @@ export class UserService {
     Validation.username(username);
     Validation.password(password);
     const normalizedUsername = username.toLowerCase();
-    const userExists = await UserRepository.findByUsername(username);
+    const userExists = await UserRepository.findByUsername(normalizedUsername);
     if (userExists) {
       throw new AppError("User already exists", 409);
-    } else {
-      const id = crypto.randomUUID();
-      const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-      await UserRepository.createUser({ id, username, hashedPassword });
-      const token = this.generateToken({
-        id,
-        username: normalizedUsername,
-      });
-      return {
-        id: id,
-        username,
-        token,
-      };
     }
+    const id = crypto.randomUUID();
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+    await UserRepository.createUser({
+      id,
+      username: normalizedUsername,
+      passwordHash: hashedPassword,
+    });
+    const token = this.generateToken({
+      id,
+      username: normalizedUsername,
+    });
+    return {
+      id,
+      username: normalizedUsername,
+      token,
+    };
   }
 }

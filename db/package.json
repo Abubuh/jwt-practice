@@ -5,7 +5,8 @@
     "db-local": "^3.1.0",
     "ejs": "^3.1.10",
     "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3"
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.20.0"
   },
   "devDependencies": {
     "standard": "^17.1.2",
