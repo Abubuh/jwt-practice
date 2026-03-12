@@ -1,14 +1,16 @@
 import express from "express";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import {
-  addMemberController,
   createListController,
   deleteListController,
   getListController,
   getListsController,
-  getMembersController,
   patchListController,
 } from "../controllers/list.controller.js";
+import {
+  addMemberController,
+  getMembersController,
+} from "../controllers/list-members.controller.js";
 
 const routerLists = express.Router();
 
@@ -30,13 +32,9 @@ routerLists.post(
 //--- Members routes---
 
 routerLists.get("/lists/:listId/members", authMiddleware, getMembersController);
-//--------Done-----------^
 routerLists.post("/lists/:listId/members", authMiddleware, addMemberController);
-routerLists.delete(
-  "/lists/:listId/members/:memberId",
-  authMiddleware,
-  (req, res, next) => {}
-);
+//--------Done-----------^
+routerLists.delete("/lists/:listId/members/:memberId", authMiddleware);
 routerLists.patch(
   "/lists/:listId/members/:memberId/role",
   authMiddleware,

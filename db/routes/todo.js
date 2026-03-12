@@ -1,6 +1,5 @@
 import express from "express";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
-import TodoService from "../services/todo.service.js";
 import {
   createTodoController,
   deleteController,
@@ -9,6 +8,7 @@ import {
   reorderController,
   updateTodoController,
 } from "../controllers/todo.controller.js";
+import { validateCreateTodo } from "../middlewares/validateCreateTodo.js";
 
 const routerTodos = express.Router();
 routerTodos.use(authMiddleware);
@@ -22,7 +22,12 @@ routerTodos.get(
   authMiddleware,
   getTodosByListIdController
 );
-routerTodos.post("/lists/:listId/todos", authMiddleware, createTodoController);
+routerTodos.post(
+  "/lists/:listId/todos",
+  authMiddleware,
+  validateCreateTodo,
+  createTodoController
+);
 
 routerTodos.patch("/lists/:listId/todos/:todoId", updateTodoController);
 

@@ -1,4 +1,3 @@
-import { ListService } from "../services/list.service.js";
 import TodoService from "../services/todo.service.js";
 
 export const getTodosByListIdController = async (req, res, next) => {
