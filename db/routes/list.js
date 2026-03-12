@@ -1,10 +1,12 @@
 import express from "express";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import {
+  addMemberController,
   createListController,
   deleteListController,
   getListController,
   getListsController,
+  getMembersController,
   patchListController,
 } from "../controllers/list.controller.js";
 
@@ -12,9 +14,11 @@ const routerLists = express.Router();
 
 routerLists.get("/lists", authMiddleware, getListsController);
 routerLists.post("/lists", createListController);
-routerLists.patch("/list/:listId", authMiddleware, patchListController);
+routerLists.patch("/lists/:listId", authMiddleware, patchListController);
 routerLists.delete("/list/:listId", authMiddleware, deleteListController);
 routerLists.get("/list/:listId", authMiddleware, getListController);
+
+//-^-Done-^-//
 
 //--------------
 routerLists.post(
@@ -24,16 +28,9 @@ routerLists.post(
 );
 
 //--- Members routes---
-routerLists.get(
-  "/lists/:listId/members",
-  authMiddleware,
-  (req, res, next) => {}
-);
-routerLists.post(
-  "/lists/:listId/members",
-  authMiddleware,
-  (req, res, next) => {}
-);
+
+routerLists.get("/lists/:listId/members", authMiddleware, getMembersController);
+routerLists.post("/lists/:listId/members", authMiddleware, addMemberController);
 routerLists.delete(
   "/lists/:listId/members/:memberId",
   authMiddleware,
@@ -46,11 +43,5 @@ routerLists.patch(
 );
 
 //-----Todos routes-----
-routerLists.get("/lists/:listId/todos", authMiddleware, (req, res, next) => {});
-routerLists.post(
-  "/lists/:listId/todos",
-  authMiddleware,
-  (req, res, next) => {}
-);
 
 export default routerLists;

@@ -3,7 +3,6 @@ import { ListService } from "../services/list.service.js";
 export async function createListController(req, res, next) {
   try {
     const userId = req.user.userId;
-    console.log(userId);
     const { title } = req.body;
     const list = await ListService.createListService({
       title,
@@ -68,3 +67,38 @@ export async function getListController(req, res, next) {
     next(error);
   }
 }
+
+export const addMemberController = async (req, res, next) => {
+  try {
+    const { listId } = req.params;
+    const requesterId = req.user.userId; // quien está haciendo la petición
+    const { userId, role } = req.body;
+
+    const member = await ListService.addMemberService({
+      listId,
+      requesterId,
+      userId,
+      role,
+    });
+    res.status(201).json({
+      ok: true,
+      message: "Member added",
+      data: member,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+export const getMembersController = async (req, res, next) => {
+  try {
+    const listId = req.params.listId;
+    const userId = req.user.userId;
+    const members = await ListService.getListMembers({ listId, userId });
+    return res.status(201).json({
+      ok: true,
+      data: members,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

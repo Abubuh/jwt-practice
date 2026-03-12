@@ -1,12 +1,11 @@
 import express from "express";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import TodoService from "../services/todo.service.js";
-import { validateCreateTodo } from "../middlewares/validateCreateTodo.js";
-import { validateUpdateTodo } from "../middlewares/validateUpdateTodo.js";
 import {
   createTodoController,
   deleteController,
-  getTodosController,
+  getTodoById,
+  getTodosByListIdController,
   reorderController,
   updateTodoController,
 } from "../controllers/todo.controller.js";
@@ -18,24 +17,24 @@ routerTodos.get("/auth/validate", authMiddleware, (req, res) => {
   res.json({ valid: true });
 });
 
-routerTodos.patch("/todos/:id", validateUpdateTodo, updateTodoController);
+routerTodos.get(
+  "/lists/:listId/todos",
+  authMiddleware,
+  getTodosByListIdController
+);
+routerTodos.post("/lists/:listId/todos", authMiddleware, createTodoController);
 
-routerTodos.delete("/todos/:id", deleteController);
+routerTodos.patch("/lists/:listId/todos/:todoId", updateTodoController);
 
-routerTodos.get("/todos/:id", async (req, res, next) => {
-  const userId = req.user.userId;
-  const todoId = req.params.id;
-  try {
-    const todo = await TodoService.getTodo(todoId, userId);
-    res.status(200).json({
-      ok: true,
-      data: todo,
-    });
-  } catch (error) {
-    next(error);
-  }
-});
+routerTodos.delete("/lists/:listId/todos/:todoId", deleteController);
 
-routerTodos.patch("/todos/reorder", authMiddleware, reorderController);
+routerTodos.get("/lists/:listId/todos/:todoId", authMiddleware, getTodoById);
+//-^-Done-^-//
+
+routerTodos.patch(
+  "/lists/:listId/todos/reorder",
+  authMiddleware,
+  reorderController
+);
 
 export default routerTodos;

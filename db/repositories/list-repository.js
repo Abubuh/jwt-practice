@@ -79,4 +79,34 @@ export class ListRepository {
     );
     return result.rows[0];
   }
+
+  static async getMemberByUserId({ listId, userId }) {
+    const result = await pool.query(
+      `SELECT * FROM list_members
+     WHERE list_id = $1 AND user_id = $2`,
+      [listId, userId]
+    );
+    return result.rows[0] ?? null;
+  }
+
+  static async addMemberRepository({ listId, userId, role }) {
+    const result = await pool.query(
+      `INSERT INTO list_members (id, list_id, user_id, role)
+     VALUES (gen_random_uuid(), $1, $2, $3)
+     RETURNING *`,
+      [listId, userId, role]
+    );
+    return result.rows[0];
+  }
+
+  static async getListMembers({ listId, userId }) {
+    const result = await pool.query(
+      `
+      SELECT * FROM list_members
+      WHERE list_id = $1
+      `,
+      [listId]
+    );
+    return result.rows;
+  }
 }

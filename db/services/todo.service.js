@@ -3,19 +3,29 @@ import { TodoRepository } from "../repositories/todo-repository.js";
 import { AppError } from "../errors/AppError.js";
 
 export default class TodoService {
-  static async createTodo({ title, priority, userId }) {
+  static async createTodo({
+    title,
+    priority,
+    userId,
+    listId,
+    description = null,
+  }) {
     const now = new Date().toISOString();
-    const todos = await TodoRepository.getTodosByUserId(userId);
+    const todos = await TodoRepository.getTodosByListId({ listId, userId });
     const totalTodos = todos.length;
     const todo = {
-      _id: crypto.randomUUID(),
+      id: crypto.randomUUID(),
+      listId: listId,
+      description: description,
       title: title.trim().replace(/\s+/g, " "),
       priority: priority ?? "low",
       userId: userId,
       completed: false,
+      created_by: userId,
+      assigned_to: null,
       createdAt: now,
       updatedAt: now,
-      order: totalTodos + 1,
+      position: totalTodos + 1,
     };
     try {
       await TodoRepository.create(todo);
@@ -35,52 +45,51 @@ export default class TodoService {
     return todos;
   }
 
-  static async getTodo(todoId, userId) {
-    try {
-      const Todo = await TodoRepository.getTodoById(todoId);
-      if (Todo.userId !== userId) throw new AppError("Todo not found", 400);
-      return Todo;
-    } catch (error) {
-      throw new AppError("Todo not found", 400);
-    }
+  static async getTodoByIds({ todoId, userId, listId }) {
+    const todo = await TodoRepository.getTodoById({ todoId, listId, userId });
+    if (!todo) throw new AppError("Todo not found", 404);
+    return todo;
   }
 
-  static async updateTodo(todoId, userId, data) {
-    if (!data || Object.keys(data).length === 0) {
+  static async updateTodo(listId, todoId, userId, updateData) {
+    if (!updateData || Object.keys(updateData).length === 0) {
       throw new AppError("Nothing to update", 400);
     }
-    const todo = await TodoRepository.getTodoById(todoId);
-    if (!todo || todo.userId !== userId) {
-      throw new AppError("Todo not found", 404);
-    }
-    console.log(data);
-    return await TodoRepository.updateTodoById(todoId, data);
+    const updatedTodo = await TodoRepository.updateTodoById({
+      todoId,
+      userId,
+      listId,
+      updateData,
+    });
+    if (!updatedTodo) throw new AppError("Todo not found", 404);
+    return updatedTodo;
   }
 
-  static async deleteTodo(todoId, userId) {
-    const todo = await TodoService.getTodo(todoId, userId);
-    if (!todo || todo.userId !== userId)
+  static async deleteTodo(todoId, userId, listId) {
+    const todo = await TodoService.getTodoByIds({ todoId, userId, listId });
+    if (!todo || todo.created_by !== userId)
       throw new AppError("Todo not found", 404);
     return await TodoRepository.deleteTodoById(todoId);
   }
 
-  static async reorderTodos(userId, todosFromClient) {
+  static async reorderTodos({ listId, userId, todos }) {
     // Asegurarse que todos pertenezcan al usuario
-    const userTodos = await TodoRepository.getTodosByUserId(userId);
-
-    const validIds = userTodos.map((t) => t._id);
-
-    const filtered = todosFromClient.filter((t) => validIds.includes(t.id));
-    if (filtered.length !== todosFromClient.length) {
-      throw new AppError("Invalid todos for this user", 403);
+    console.log({ listId, userId, todos });
+    if (!todos || todos.length === 0) {
+      throw new AppError("Nothing to reorder", 400);
     }
-    // Reasignar order limpio
-    const reordered = filtered.map((todo, index) => ({
-      id: todo.id,
-      order: index,
-    }));
 
-    await TodoRepository.updateOrder(userId, reordered);
+    const ids = todos.map((t) => t._id);
+    // Reasignar order limpio
+    const reordered = await TodoRepository.reorderTodos({
+      listId,
+      userId,
+      todos: ids.map((id, index) => ({
+        id,
+        position: todos.find((t) => t.id === id).position,
+      })),
+    });
+    if (!reordered) throw new AppError("Reorder failed", 400);
     return reordered;
   }
 }

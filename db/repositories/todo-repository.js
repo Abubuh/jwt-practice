@@ -1,68 +1,134 @@
-import dbLocal from "db-local";
-const { db, Schema } = new dbLocal({ path: "./db" });
-
-const Todo = Schema("Todo", {
-  _id: { type: String, required: true },
-  userId: { type: String, required: true },
-  title: { type: String, required: true },
-  completed: { type: Boolean, default: false },
-  priority: { type: String, required: true },
-  createdAt: { type: String, required: true },
-  updatedAt: { type: String, required: true },
-  order: { type: Number, null: false },
-});
-
+import { pool } from "../db/db.js";
 export class TodoRepository {
-  static async getTodosByListId(userId) {
-    const todos = Todo.find({ userId: userId });
-    return todos.sort((a, b) => a.order - b.order);
+  static async getTodosByListId({ listId, userId }) {
+    const todos = await pool.query(
+      `
+      SELECT * FROM todos
+      WHERE list_id = $1
+      AND created_by = $2
+      `,
+      [listId, userId]
+    );
+    return todos.rows;
   }
 
-  static async create(todo) {
-    return Todo.create(todo).save();
+  static async create(data) {
+    const result = await pool.query(
+      `INSERT INTO todos 
+      (title, priority, created_by, completed, created_at, updated_at, position, list_id, assigned_to)
+     VALUES 
+      ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+     RETURNING *`,
+      [
+        data.title,
+        data.priority,
+        data.userId,
+        data.completed,
+        data.createdAt,
+        data.updatedAt,
+        data.position,
+        data.listId,
+        data.assigned_to,
+      ]
+    );
+    return result.rows[0];
   }
 
-  static async updateTodoById(todoId, data) {
-    const todo = await Todo.findOne({ _id: todoId });
-    if (!todo) return null;
-
-    Object.assign(todo, {
-      ...data,
-      updatedAt: new Date().toISOString(),
-    });
-    return await todo.save();
+  static async updateTodoById({ listId, todoId, userId, updateData }) {
+    const result = await pool.query(
+      `UPDATE todos
+      SET
+        title = COALESCE($1, title),
+        completed = COALESCE($2, completed),
+        priority = COALESCE($3, priority),
+        description = COALESCE($4, description),
+        assigned_to = COALESCE($5, assigned_to),
+        updated_by = COALESCE($6, updated_by),
+        updated_at = NOW()
+      WHERE id = $7
+        AND created_by = $8
+        AND list_id = $9
+      RETURNING *`,
+      [
+        updateData.title ?? null,
+        updateData.completed ?? null,
+        updateData.priority ?? null,
+        updateData.description ?? null,
+        updateData.assignedTo ?? null,
+        updateData.updatedBy ?? null,
+        todoId,
+        userId,
+        listId,
+      ]
+    );
+    return result.rows[0] ?? null;
   }
 
-  static async getTodoById(todoId) {
-    return await Todo.findOne({ _id: todoId });
+  static async getTodoById({ todoId, listId, userId }) {
+    console.log(todoId, userId, listId);
+    const result = await pool.query(
+      `SELECT * FROM todos 
+     WHERE id = $1 AND created_by = $2
+     AND list_id = $3`,
+      [todoId, userId, listId]
+    );
+    return result.rows[0] ?? null;
   }
 
   static async deleteTodoById(todoId) {
-    return await Todo.remove({ _id: todoId });
+    const result = pool.query(
+      `
+      DELETE FROM todos
+      WHERE id = $1
+      RETURNING *
+      `,
+      [todoId]
+    );
+    return result;
   }
 
-  static async getTodosByUserPaginated(userId, skip, limit) {
-    return await TodoModel.find({ userId })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-  }
+  static async reorderTodos(userId, reordered) {
+    const ids = todos.map((t) => t.id);
+    const positions = todos.map((t) => t.position);
 
-  static async updateOrder(userId, reordered) {
-    for (const updated of reordered) {
-      const todo = await Todo.findOne({
-        _id: updated.id,
-        userId: userId,
-      });
-      console.log("buscando:", updated.id);
-      console.log("ENCONTRADO:", todo);
-      if (todo) {
-        todo.order = updated.order;
-        await todo.save();
-      }
+    const result = await pool.query(
+      `UPDATE todos
+     SET position = data.position
+     FROM UNNEST($1::uuid[], $2::int[]) AS data(id, position)
+     WHERE todos.id = data.id
+       AND todos.list_id = $3
+       AND todos.created_by = $4
+     RETURNING *`,
+      [ids, positions, listId, userId]
+    );
+
+    // Si no actualizó todos los que mandaron, algo estaba mal
+    if (result.rows.length !== todos.length) {
+      throw new AppError("Some todos don't belong to this list", 403);
     }
+    return result.rows;
   }
   static async countTodosByUser(userId) {
     return await TodoModel.countDocuments({ userId });
   }
+
+  static async getMemberByUserId({ listId, userId }) {
+    const result = await pool.query(
+      `SELECT * FROM list_members
+     WHERE list_id = $1 AND user_id = $2`,
+      [listId, userId]
+    );
+    return result.rows[0] ?? null;
+  }
+
+  // Agregar miembro
+  // static async addMember({ listId, userId, role }) {
+  //   const result = await pool.query(
+  //     `INSERT INTO list_members (id, list_id, user_id, role)
+  //    VALUES (gen_random_uuid(), $1, $2, $3)
+  //    RETURNING *`,
+  //     [listId, userId, role]
+  //   );
+  //   return result.rows[0];
+  // }
 }

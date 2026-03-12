@@ -27,6 +27,8 @@ app.post("/login", loginController);
 
 app.post("/register", registerController);
 
+//-^-Done-^-//
+
 app.post("/logout", (req, res) => {});
 
 app.get("/protected", (req, res) => {});

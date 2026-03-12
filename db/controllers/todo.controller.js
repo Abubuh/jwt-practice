@@ -1,6 +1,7 @@
+import { ListService } from "../services/list.service.js";
 import TodoService from "../services/todo.service.js";
 
-export const getTodosController = async (req, res, next) => {
+export const getTodosByListIdController = async (req, res, next) => {
   try {
     const listId = req.params.listId;
     const userId = req.user.userId;
@@ -14,11 +15,32 @@ export const getTodosController = async (req, res, next) => {
   }
 };
 
+export const getTodoById = async (req, res, next) => {
+  const userId = req.user.userId;
+  const { todoId, listId } = req.params;
+  try {
+    const todo = await TodoService.getTodoByIds({ todoId, userId, listId });
+    res.status(200).json({
+      ok: true,
+      data: todo,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const createTodoController = async (req, res, next) => {
   try {
-    const { title, priority } = req.body;
+    const { title, priority, description } = req.body;
+    const listId = req.params.listId;
     const userId = req.user.userId;
-    const todo = await TodoService.createTodo({ title, priority, userId });
+    const todo = await TodoService.createTodo({
+      title,
+      priority,
+      userId,
+      listId,
+      description,
+    });
     return res.status(201).json({
       ok: true,
       message: "Todo created",
@@ -31,9 +53,8 @@ export const createTodoController = async (req, res, next) => {
 
 export const updateTodoController = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { listId, todoId } = req.params;
     const userId = req.user.userId;
-
     const updateData = {};
     if (req.body.title !== undefined)
       updateData.title = req.body.title.trim().replace(/\s+/g, " ");
@@ -41,8 +62,18 @@ export const updateTodoController = async (req, res, next) => {
       updateData.completed = req.body.completed;
     if (req.body.priority !== undefined)
       updateData.priority = req.body.priority;
-
-    const updatedTodo = await TodoService.updateTodo(id, userId, updateData);
+    if (req.body.description !== undefined)
+      updateData.description = req.body.description;
+    if (req.body.assignedTo !== undefined)
+      updateData.assignedTo = req.body.assignedTo;
+    if (req.body.updatedBy !== undefined)
+      updateData.updatedBy = req.body.updatedBy;
+    const updatedTodo = await TodoService.updateTodo(
+      listId,
+      todoId,
+      userId,
+      updateData
+    );
 
     res.status(200).json({
       ok: true,
@@ -55,10 +86,11 @@ export const updateTodoController = async (req, res, next) => {
 
 export const deleteController = async (req, res, next) => {
   try {
-    const todoId = req.params.id;
+    const todoId = req.params.todoId;
     const userId = req.user.userId;
-    await TodoService.deleteTodo(todoId, userId);
-    res.json(200).json({
+    const listId = req.params.listId;
+    await TodoService.deleteTodo(todoId, userId, listId);
+    res.status(200).json({
       ok: true,
       message: "Todo deleted",
     });
@@ -70,8 +102,13 @@ export const deleteController = async (req, res, next) => {
 export const reorderController = async (req, res, next) => {
   try {
     const { todos } = req.body;
+    const listId = req.params.listId;
     const userId = req.user.userId;
-    const reorderedTodos = await TodoService.reorderTodos(userId, todos);
+    const reorderedTodos = await TodoService.reorderTodos({
+      listId,
+      userId,
+      todos,
+    });
     res.status(200).json({
       ok: true,
       data: reorderedTodos,
