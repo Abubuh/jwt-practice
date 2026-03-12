@@ -1,3 +1,4 @@
+import { AppError } from "../errors/AppError.js";
 import { ListMemberRepository } from "../repositories/list-member-repository.js";
 import { UserRepository } from "../repositories/user-repository.js";
 
@@ -37,5 +38,30 @@ export class ListMembersService {
       userId,
     });
     return listMembers;
+  }
+
+  static async deleteMemberFromList({ listId, userToRemoveId, requesterId }) {
+    console.log({ listId, userToRemoveId, requesterId });
+    const requester = await ListMemberRepository.getMemberByUserId({
+      listId,
+      userId: requesterId,
+    });
+    if (!requester || !["owner", "admin"].includes(requester.role)) {
+      throw new AppError("Not Authorized", 403);
+    }
+    const memberToRemove = await ListMemberRepository.getMemberById({
+      memberId: userToRemoveId,
+    });
+    console.log(memberToRemove);
+    if (!memberToRemove) {
+      throw new AppError("Member not found", 404);
+    }
+    if (memberToRemove.role == "owner") {
+      throw new AppError("Cannot remove the owner", 403);
+    }
+    const deleteUser = await ListMemberRepository.deleteUserFromList({
+      userToRemoveId,
+    });
+    return deleteUser;
   }
 }

@@ -35,3 +35,22 @@ export const getMembersController = async (req, res, next) => {
     next(error);
   }
 };
+
+export const deleteMember = async (req, res, next) => {
+  try {
+    const listId = req.params.listId;
+    const userToRemoveId = req.params.memberId;
+    const requesterId = req.user.userId;
+    const deletedUser = await ListMembersService.deleteMemberFromList({
+      listId,
+      userToRemoveId,
+      requesterId,
+    });
+    res.status(200).json({
+      ok: true,
+      data: deletedUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

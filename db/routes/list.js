@@ -9,6 +9,7 @@ import {
 } from "../controllers/list.controller.js";
 import {
   addMemberController,
+  deleteMember,
   getMembersController,
 } from "../controllers/list-members.controller.js";
 
@@ -34,7 +35,11 @@ routerLists.post(
 routerLists.get("/lists/:listId/members", authMiddleware, getMembersController);
 routerLists.post("/lists/:listId/members", authMiddleware, addMemberController);
 //--------Done-----------^
-routerLists.delete("/lists/:listId/members/:memberId", authMiddleware);
+routerLists.delete(
+  "/lists/:listId/members/:memberId",
+  authMiddleware,
+  deleteMember
+);
 routerLists.patch(
   "/lists/:listId/members/:memberId/role",
   authMiddleware,

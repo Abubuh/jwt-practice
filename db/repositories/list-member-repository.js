@@ -10,6 +10,14 @@ export class ListMemberRepository {
     return result.rows[0] ?? null;
   }
 
+  static async getMemberById({ memberId }) {
+    const result = await pool.query(
+      `SELECT * FROM list_members WHERE id = $1`,
+      [memberId]
+    );
+    return result.rows[0] ?? null;
+  }
+
   static async addMemberRepository({ listId, userId, role }) {
     const result = await pool.query(
       `INSERT INTO list_members (id, list_id, user_id, role)
@@ -37,5 +45,17 @@ export class ListMemberRepository {
       [listId]
     );
     return result.rows;
+  }
+
+  static async deleteUserFromList({ userToRemoveId }) {
+    const result = await pool.query(
+      `
+        DELETE FROM list_members
+        WHERE id = $1
+        RETURNING *
+        `,
+      [userToRemoveId]
+    );
+    return result.rows[0] ?? null;
   }
 }
