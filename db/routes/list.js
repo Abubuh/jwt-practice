@@ -11,6 +11,7 @@ import {
   addMemberController,
   deleteMember,
   getMembersController,
+  patchListMemberController,
 } from "../controllers/list-members.controller.js";
 
 const routerLists = express.Router();
@@ -34,16 +35,16 @@ routerLists.post(
 
 routerLists.get("/lists/:listId/members", authMiddleware, getMembersController);
 routerLists.post("/lists/:listId/members", authMiddleware, addMemberController);
-//--------Done-----------^
 routerLists.delete(
   "/lists/:listId/members/:memberId",
   authMiddleware,
   deleteMember
 );
+//--------Done-----------^
 routerLists.patch(
   "/lists/:listId/members/:memberId/role",
   authMiddleware,
-  (req, res, next) => {}
+  patchListMemberController
 );
 
 //-----Todos routes-----

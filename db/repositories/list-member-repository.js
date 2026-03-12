@@ -58,4 +58,15 @@ export class ListMemberRepository {
     );
     return result.rows[0] ?? null;
   }
+
+  static async patchMember({ memberId, role }) {
+    const result = await pool.query(
+      `UPDATE list_members
+     SET role = $1
+     WHERE id = $2
+     RETURNING *`,
+      [role, memberId]
+    );
+    return result.rows[0] ?? null;
+  }
 }

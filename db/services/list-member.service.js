@@ -64,4 +64,32 @@ export class ListMembersService {
     });
     return deleteUser;
   }
+
+  static async patchMemberFromList({ listId, memberId, userId, role }) {
+    const requester = await ListMemberRepository.getMemberByUserId({
+      listId,
+      userId,
+    });
+    if (!requester || !["owner", "admin"].includes(requester.role)) {
+      throw new AppError("Not authorized", 403);
+    }
+    const memberExists = await ListMemberRepository.getMemberById({
+      memberId,
+    });
+    console.log(memberExists);
+    if (!memberExists) {
+      throw new AppError("Member not found", 403);
+    }
+    if (role.toLowerCase() === "owner") {
+      throw new AppError("Can't assign that role.");
+    }
+    if (memberExists.role === "owner") {
+      throw new AppError("You can't remove ownership.");
+    }
+    const updatedMember = await ListMemberRepository.patchMember({
+      memberId,
+      role,
+    });
+    return updatedMember;
+  }
 }

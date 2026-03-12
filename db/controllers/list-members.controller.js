@@ -54,3 +54,23 @@ export const deleteMember = async (req, res, next) => {
     next(error);
   }
 };
+
+export const patchListMemberController = async (req, res, next) => {
+  try {
+    const { role } = req.body;
+    const { listId, memberId } = req.params;
+    const userId = req.user.userId;
+    const patchedMember = await ListMembersService.patchMemberFromList({
+      listId,
+      memberId,
+      userId,
+      role,
+    });
+    res.status(200).json({
+      ok: true,
+      data: patchedMember,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
