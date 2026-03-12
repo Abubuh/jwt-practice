@@ -60,7 +60,7 @@ export class ListService {
       listId,
       userId: requesterId,
     });
-    if (!requester || !["admin", "editor"].includes(requester.role)) {
+    if (!requester || !["owner", "editor"].includes(requester.role)) {
       throw new AppError("Not authorized", 403);
     }
 

@@ -30,6 +30,7 @@ routerLists.post(
 //--- Members routes---
 
 routerLists.get("/lists/:listId/members", authMiddleware, getMembersController);
+//--------Done-----------^
 routerLists.post("/lists/:listId/members", authMiddleware, addMemberController);
 routerLists.delete(
   "/lists/:listId/members/:memberId",

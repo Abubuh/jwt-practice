@@ -102,8 +102,16 @@ export class ListRepository {
   static async getListMembers({ listId, userId }) {
     const result = await pool.query(
       `
-      SELECT * FROM list_members
-      WHERE list_id = $1
+      SELECT 
+        list_members.id,
+        list_members.list_id,
+        list_members.role,
+        list_members.joined_at,
+        users.id AS user_id,
+        users.username
+      FROM list_members
+      JOIN users ON list_members.user_id = users.id
+      WHERE list_members.list_id = $1
       `,
       [listId]
     );
