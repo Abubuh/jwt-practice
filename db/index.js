@@ -9,6 +9,8 @@ import {
   registerController,
 } from "./controllers/user.controller.js";
 import routerLists from "./routes/list.js";
+import { validateCreateUser } from "./validations/ValidateCreateUser.js";
+import { validateLoginUser } from "./validations/validateLoginUser.js";
 const result = await pool.query("SELECT * FROM users");
 console.log(result.rows);
 
@@ -23,9 +25,9 @@ app.use("/api", routerTodos);
 app.use("/api", routerLists);
 app.use(errorHandler);
 
-app.post("/login", loginController);
+app.post("/login", validateLoginUser, loginController);
 
-app.post("/register", registerController);
+app.post("/register", validateCreateUser, registerController);
 
 //-^-Done-^-//
 
