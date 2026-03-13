@@ -13,11 +13,12 @@ import {
   getMembersController,
   patchListMemberController,
 } from "../controllers/list-members.controller.js";
+import { validatePostList } from "../validations/validatePostList.js";
 
 const routerLists = express.Router();
 
 routerLists.get("/lists", authMiddleware, getListsController);
-routerLists.post("/lists", createListController);
+routerLists.post("/lists", validatePostList, createListController);
 routerLists.patch("/lists/:listId", authMiddleware, patchListController);
 routerLists.delete("/list/:listId", authMiddleware, deleteListController);
 routerLists.get("/list/:listId", authMiddleware, getListController);
@@ -25,11 +26,6 @@ routerLists.get("/list/:listId", authMiddleware, getListController);
 //-^-Done-^-//
 
 //--------------
-routerLists.post(
-  "/lists/:listId/invite",
-  authMiddleware,
-  (req, res, next) => {}
-);
 
 //--- Members routes---
 
@@ -40,13 +36,15 @@ routerLists.delete(
   authMiddleware,
   deleteMember
 );
-//--------Done-----------^
 routerLists.patch(
   "/lists/:listId/members/:memberId/role",
   authMiddleware,
   patchListMemberController
 );
-
-//-----Todos routes-----
-
+//--------Done-----------^
+routerLists.post(
+  "/lists/:listId/invite",
+  authMiddleware,
+  (req, res, next) => {}
+);
 export default routerLists;
