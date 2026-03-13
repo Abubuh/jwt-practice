@@ -55,8 +55,7 @@ export const updateTodoController = async (req, res, next) => {
     const { listId, todoId } = req.params;
     const userId = req.user.userId;
     const updateData = {};
-    if (req.body.title !== undefined)
-      updateData.title = req.body.title.trim().replace(/\s+/g, " ");
+    if (req.body.title !== undefined) updateData.title = req.body.title;
     if (req.body.completed !== undefined)
       updateData.completed = req.body.completed;
     if (req.body.priority !== undefined)

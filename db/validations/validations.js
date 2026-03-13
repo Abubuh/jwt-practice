@@ -69,7 +69,7 @@ export class Validation {
     }
   }
 
-  static description(description) {
+  static description(description, { required = false } = {}) {
     if (typeof description !== "string")
       throw new AppError("Description must be a string.");
     if (description.length > 500)

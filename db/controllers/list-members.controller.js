@@ -27,7 +27,7 @@ export const getMembersController = async (req, res, next) => {
     const listId = req.params.listId;
     const userId = req.user.userId;
     const members = await ListMembersService.getListMembers({ listId, userId });
-    return res.status(201).json({
+    return res.status(200).json({
       ok: true,
       data: members,
     });

@@ -15,9 +15,9 @@ export class TodoRepository {
   static async create(data) {
     const result = await pool.query(
       `INSERT INTO todos 
-      (title, priority, created_by, completed, created_at, updated_at, position, list_id, assigned_to)
+      (title, priority, created_by, completed, created_at, updated_at, position, list_id, assigned_to, description)
      VALUES 
-      ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
      RETURNING *`,
       [
         data.title,
@@ -29,6 +29,7 @@ export class TodoRepository {
         data.position,
         data.listId,
         data.assigned_to,
+        data.description,
       ]
     );
     return result.rows[0];
@@ -120,15 +121,4 @@ export class TodoRepository {
     );
     return result.rows[0] ?? null;
   }
-
-  // Agregar miembro
-  // static async addMember({ listId, userId, role }) {
-  //   const result = await pool.query(
-  //     `INSERT INTO list_members (id, list_id, user_id, role)
-  //    VALUES (gen_random_uuid(), $1, $2, $3)
-  //    RETURNING *`,
-  //     [listId, userId, role]
-  //   );
-  //   return result.rows[0];
-  // }
 }

@@ -8,7 +8,8 @@ import {
   reorderController,
   updateTodoController,
 } from "../controllers/todo.controller.js";
-import { validateCreateTodo } from "../middlewares/validateCreateTodo.js";
+import { validateCreateTodo } from "../validations/validateCreateTodo.js";
+import { validateUpdateTodo } from "../validations/validateUpdateTodo.js";
 
 const routerTodos = express.Router();
 routerTodos.use(authMiddleware);
@@ -34,6 +35,7 @@ routerTodos.patch("/lists/:listId/todos/:todoId", updateTodoController);
 routerTodos.delete("/lists/:listId/todos/:todoId", deleteController);
 
 routerTodos.get("/lists/:listId/todos/:todoId", authMiddleware, getTodoById);
+
 //-^-Done-^-//
 
 routerTodos.patch(
