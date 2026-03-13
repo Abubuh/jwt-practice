@@ -1,7 +1,6 @@
 import crypto from "crypto";
 import { ListRepository } from "../repositories/list-repository.js";
 import { AppError } from "../errors/AppError.js";
-import { UserRepository } from "../repositories/user-repository.js";
 import { ListMemberRepository } from "../repositories/list-member-repository.js";
 
 export class ListService {
@@ -10,7 +9,7 @@ export class ListService {
     const normalizedTitle = title.trim().replace(/\s+/g, " ");
     const list = await ListRepository.createList({
       id,
-      title: normalizedTitle,
+      title,
       userId,
     });
 
@@ -32,7 +31,7 @@ export class ListService {
     const updatedList = await ListRepository.patchList({
       userId,
       listId,
-      normalizedTitle,
+      title: normalizedTitle,
     });
     if (!updatedList) {
       throw new AppError("List not found", 404);

@@ -9,6 +9,8 @@ export class ListMembersService {
       listId,
       userId: requesterId,
     });
+    console.log("test", listId, requesterId, userId, role);
+    console.log("hi", requester);
     if (!requester || !["owner", "editor"].includes(requester.role)) {
       throw new AppError("Not authorized", 403);
     }
@@ -33,6 +35,13 @@ export class ListMembersService {
   }
 
   static async getListMembers({ listId, userId }) {
+    const userIsMember = await ListMemberRepository.getMemberByUserId({
+      listId,
+      userId,
+    });
+    console.log(userIsMember);
+    if (!userIsMember) throw new AppError("List not found.", 403);
+
     const listMembers = await ListMemberRepository.getListMembers({
       listId,
       userId,

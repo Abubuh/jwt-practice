@@ -101,7 +101,12 @@ export class Validation {
       throw new AppError("Priority must be at least Low, Medium or High", 400);
   }
 
-  static role(role) {
+  static role(role, { required = true } = {}) {
+    if (role === undefined) {
+      if (required) {
+        throw new AppError("Member needs a Role!", 400);
+      }
+    }
     if (!["owner", "admin", "editor", "viewer"].includes(role))
       throw new AppError(
         "Role is not valid. Must be owner, admin, editor or viewer."

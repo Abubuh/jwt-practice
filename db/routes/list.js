@@ -14,6 +14,8 @@ import {
   patchListMemberController,
 } from "../controllers/list-members.controller.js";
 import { validatePostList } from "../validations/validatePostList.js";
+import { validateListMember } from "../validations/validateListMember.js";
+import { validatePostMember } from "../validations/validatePostMember.js";
 
 const routerLists = express.Router();
 
@@ -30,7 +32,12 @@ routerLists.get("/list/:listId", authMiddleware, getListController);
 //--- Members routes---
 
 routerLists.get("/lists/:listId/members", authMiddleware, getMembersController);
-routerLists.post("/lists/:listId/members", authMiddleware, addMemberController);
+routerLists.post(
+  "/lists/:listId/members",
+  authMiddleware,
+  validatePostMember,
+  addMemberController
+);
 routerLists.delete(
   "/lists/:listId/members/:memberId",
   authMiddleware,
@@ -39,6 +46,7 @@ routerLists.delete(
 routerLists.patch(
   "/lists/:listId/members/:memberId/role",
   authMiddleware,
+  validateListMember,
   patchListMemberController
 );
 //--------Done-----------^
