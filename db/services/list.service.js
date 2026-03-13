@@ -2,17 +2,19 @@ import crypto from "crypto";
 import { ListRepository } from "../repositories/list-repository.js";
 import { AppError } from "../errors/AppError.js";
 import { UserRepository } from "../repositories/user-repository.js";
+import { ListMemberRepository } from "../repositories/list-member-repository.js";
 
 export class ListService {
   static async createListService({ title, userId }) {
     const id = crypto.randomUUID();
+    const normalizedTitle = title.trim().replace(/\s+/g, " ");
     const list = await ListRepository.createList({
       id,
-      title,
+      title: normalizedTitle,
       userId,
     });
 
-    await ListRepository.addMemberRepository({
+    await ListMemberRepository.addMemberRepository({
       listId: id,
       userId,
       role: "owner",
@@ -26,10 +28,11 @@ export class ListService {
   }
 
   static async patchListService({ userId, listId, title }) {
+    const normalizedTitle = title.trim().replace(/\s+/g, " ");
     const updatedList = await ListRepository.patchList({
       userId,
       listId,
-      title,
+      normalizedTitle,
     });
     if (!updatedList) {
       throw new AppError("List not found", 404);

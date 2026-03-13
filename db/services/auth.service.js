@@ -13,7 +13,7 @@ export class UserService {
     return jwt.sign({ userId: id, username }, JWT_SECRET, { expiresIn: "1h" });
   }
   static async login({ username, password }) {
-    const normalizedUsername = username.toLowerCase();
+    const normalizedUsername = username.trim().toLowerCase();
     const user = await UserRepository.findByUsername(normalizedUsername);
     if (!user) {
       throw new AppError("Invalid credentials", 401);
@@ -34,9 +34,7 @@ export class UserService {
   }
 
   static async create({ username, password }) {
-    Validation.username(username);
-    Validation.password(password);
-    const normalizedUsername = username.toLowerCase();
+    const normalizedUsername = username.trim().toLowerCase();
     const userExists = await UserRepository.findByUsername(normalizedUsername);
     if (userExists) {
       throw new AppError("User already exists", 409);

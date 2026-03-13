@@ -10,14 +10,17 @@ export default class TodoService {
     listId,
     description = null,
   }) {
+    const normalizedDescription = description?.trim().replace(/\s+/g, " ");
+    const normalizedTitle = title?.trim().replace(/\s+/g, " ");
+    console.log(description, title);
     const now = new Date().toISOString();
     const todos = await TodoRepository.getTodosByListId({ listId, userId });
     const totalTodos = todos.length;
     const todo = {
       id: crypto.randomUUID(),
       listId: listId,
-      description: description,
-      title: title.trim().replace(/\s+/g, " "),
+      description: normalizedDescription,
+      title: normalizedTitle,
       priority: priority ?? "low",
       userId: userId,
       completed: false,
