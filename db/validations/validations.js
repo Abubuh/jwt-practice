@@ -4,6 +4,8 @@ export class Validation {
   static username(username) {
     if (typeof username !== "string")
       throw new AppError("Username must be a string", 400);
+    if (/\s/.test(username))
+      throw new AppError("Username cannot contain spaces", 400);
     if (username.length < 5)
       throw new AppError("Username must be at least 5 characters long", 400);
   }
@@ -13,9 +15,15 @@ export class Validation {
       throw new AppError("Password must be a string", 400);
     if (password.length < 6)
       throw new AppError("Password must be at least 6 characters long", 400);
+    if (/\s/.test(password))
+      throw new AppError("Password cannot contain spaces", 400);
+    if (!/[a-zA-Z]/.test(password))
+      throw new AppError("Password must contain at least one letter", 400);
+    if (!/[0-9]/.test(password))
+      throw new AppError("Password must contain at least one number", 400);
   }
 
-  static title(title, { required = true } = {}) {
+  static listTitle(title, { required = true } = {}) {
     if (title === undefined) {
       if (required) {
         throw new AppError("Todo needs a title!", 400);
@@ -33,6 +41,39 @@ export class Validation {
     if (title.trim().length < 4) {
       throw new AppError("Title must be at least 3 characters long", 400);
     }
+    if (title.length > 51) {
+      throw new AppError("Title must have less than 50 characters.", 400);
+    }
+  }
+
+  static todoTitle(title, { required = true } = {}) {
+    if (title === undefined) {
+      if (required) {
+        throw new AppError("Todo needs a title!", 400);
+      }
+      return;
+    }
+    if (typeof title !== "string") {
+      throw new AppError("Title must be a string", 400);
+    }
+
+    if (title.trim().length === 0) {
+      throw new AppError("Title cannot be empty", 400);
+    }
+
+    if (title.trim().length < 4) {
+      throw new AppError("Title must be at least 3 characters long", 400);
+    }
+    if (title.length > 251) {
+      throw new AppError("Title must have less than 250 characters.", 400);
+    }
+  }
+
+  static description(description) {
+    if (typeof description !== "string")
+      throw new AppError("Description must be a string.");
+    if (description.length > 500)
+      throw new AppError("Description can't exceed 500 characters.");
   }
 
   static completed(completed, { required = true } = {}) {
@@ -58,5 +99,12 @@ export class Validation {
     const priorities = ["low", "medium", "high"];
     if (!priorities.includes(priority.toString().toLowerCase()))
       throw new AppError("Priority must be at least Low, Medium or High", 400);
+  }
+
+  static role(role) {
+    if (!["owner", "admin", "editor", "viewer"].includes(role))
+      throw new AppError(
+        "Role is not valid. Must be owner, admin, editor or viewer."
+      );
   }
 }
