@@ -2,6 +2,7 @@ import { AppError } from "../errors/AppError.js";
 
 export class Validation {
   static username(username) {
+    if (username === undefined) throw new AppError("Username is required", 400);
     if (typeof username !== "string")
       throw new AppError("Username must be a string", 400);
     if (/\s/.test(username))
@@ -70,10 +71,16 @@ export class Validation {
   }
 
   static description(description, { required = false } = {}) {
+    if (description === undefined) {
+      if (required) {
+        throw new AppError("Todo needs a title!", 400);
+      }
+      return;
+    }
     if (typeof description !== "string")
-      throw new AppError("Description must be a string.");
+      throw new AppError("Description must be a string.", 400);
     if (description.length > 500)
-      throw new AppError("Description can't exceed 500 characters.");
+      throw new AppError("Description can't exceed 500 characters.", 400);
   }
 
   static completed(completed, { required = true } = {}) {
@@ -109,7 +116,8 @@ export class Validation {
     }
     if (!["owner", "admin", "editor", "viewer"].includes(role))
       throw new AppError(
-        "Role is not valid. Must be owner, admin, editor or viewer."
+        "Role is not valid. Must be owner, admin, editor or viewer.",
+        400
       );
   }
 }

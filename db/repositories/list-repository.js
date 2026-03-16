@@ -27,14 +27,16 @@ export class ListRepository {
     const result = await pool.query(
       `
       SELECT
-        id,
-        title,
-        created_by,
-        position,
-        created_at
-      FROM lists
-      WHERE created_by = $1
-      ORDER BY position ASC
+      lists.id,
+      lists.title,
+      lists.created_by,
+      lists.position,
+      lists.created_at,
+      list_members.role
+    FROM lists
+    JOIN list_members ON lists.id = list_members.list_id
+    WHERE list_members.user_id = $1
+    ORDER BY lists.position ASC
       `,
       [userId]
     );

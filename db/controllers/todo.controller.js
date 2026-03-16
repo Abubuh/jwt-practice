@@ -7,6 +7,7 @@ export const getTodosByListIdController = async (req, res, next) => {
     const todos = await TodoService.getAllTodos({ listId, userId });
     res.status(200).json({
       ok: true,
+      message: "Todos Found",
       data: todos,
     });
   } catch (error) {
@@ -21,6 +22,7 @@ export const getTodoById = async (req, res, next) => {
     const todo = await TodoService.getTodoByIds({ todoId, userId, listId });
     res.status(200).json({
       ok: true,
+      message: "Todo found",
       data: todo,
     });
   } catch (error) {
@@ -75,6 +77,7 @@ export const updateTodoController = async (req, res, next) => {
 
     res.status(200).json({
       ok: true,
+      message: "Todo updated",
       data: updatedTodo,
     });
   } catch (error) {
@@ -109,6 +112,7 @@ export const reorderController = async (req, res, next) => {
     });
     res.status(200).json({
       ok: true,
+      message: "Reordered",
       data: reorderedTodos,
     });
   } catch (error) {

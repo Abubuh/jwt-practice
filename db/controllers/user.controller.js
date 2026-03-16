@@ -8,7 +8,11 @@ export const registerController = async (req, res, next) => {
       username: normalizedUsername,
       password,
     });
-    res.status(201).json(user);
+    res.status(201).json({
+      ok: true,
+      message: "User created",
+      data: user,
+    });
   } catch (error) {
     next(error);
   }
@@ -22,7 +26,11 @@ export const loginController = async (req, res, next) => {
       username: normalizedUsername,
       password,
     });
-    res.send(user);
+    res.status(200).json({
+      ok: true,
+      message: "Logged in",
+      data: user,
+    });
   } catch (error) {
     next(error);
   }

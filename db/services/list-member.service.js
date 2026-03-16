@@ -9,8 +9,6 @@ export class ListMembersService {
       listId,
       userId: requesterId,
     });
-    console.log("test", listId, requesterId, userId, role);
-    console.log("hi", requester);
     if (!requester || !["owner", "editor"].includes(requester.role)) {
       throw new AppError("Not authorized", 403);
     }
@@ -85,7 +83,6 @@ export class ListMembersService {
     const memberExists = await ListMemberRepository.getMemberById({
       memberId,
     });
-    console.log(memberExists);
     if (!memberExists) {
       throw new AppError("Member not found", 403);
     }

@@ -16,14 +16,25 @@ import {
 import { validatePostList } from "../validations/validatePostList.js";
 import { validateListMember } from "../validations/validateListMember.js";
 import { validatePostMember } from "../validations/validatePostMember.js";
+import { validatePatchList } from "../validations/validatePatchList.js";
 
 const routerLists = express.Router();
 
 routerLists.get("/lists", authMiddleware, getListsController);
-routerLists.post("/lists", validatePostList, createListController);
-routerLists.patch("/lists/:listId", authMiddleware, patchListController);
-routerLists.delete("/list/:listId", authMiddleware, deleteListController);
-routerLists.get("/list/:listId", authMiddleware, getListController);
+routerLists.post(
+  "/lists",
+  authMiddleware,
+  validatePostList,
+  createListController
+);
+routerLists.patch(
+  "/lists/:listId",
+  authMiddleware,
+  validatePatchList,
+  patchListController
+);
+routerLists.delete("/lists/:listId", authMiddleware, deleteListController);
+routerLists.get("/lists/:listId", authMiddleware, getListController);
 
 //-^-Done-^-//
 

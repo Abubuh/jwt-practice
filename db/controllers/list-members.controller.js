@@ -30,6 +30,7 @@ export const getMembersController = async (req, res, next) => {
     const members = await ListMembersService.getListMembers({ listId, userId });
     return res.status(200).json({
       ok: true,
+      message: "Member found",
       data: members,
     });
   } catch (error) {
@@ -49,6 +50,7 @@ export const deleteMember = async (req, res, next) => {
     });
     res.status(200).json({
       ok: true,
+      message: "Member deleted",
       data: deletedUser,
     });
   } catch (error) {
@@ -69,6 +71,7 @@ export const patchListMemberController = async (req, res, next) => {
     });
     res.status(200).json({
       ok: true,
+      message: "Member patched",
       data: patchedMember,
     });
   } catch (error) {

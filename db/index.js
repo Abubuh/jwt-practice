@@ -1,5 +1,4 @@
 import express from "express";
-import { PORT } from "./config.js";
 import cors from "cors";
 import routerTodos from "./routes/todo.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
@@ -11,8 +10,6 @@ import {
 import routerLists from "./routes/list.js";
 import { validateCreateUser } from "./validations/ValidateCreateUser.js";
 import { validateLoginUser } from "./validations/validateLoginUser.js";
-const result = await pool.query("SELECT * FROM users");
-console.log(result.rows);
 
 const app = express();
 app.use(express.json());
@@ -34,10 +31,6 @@ app.post("/register", validateCreateUser, registerController);
 app.post("/logout", (req, res) => {});
 
 app.get("/protected", (req, res) => {});
-
-app.listen(PORT, () => {
-  console.log("Hello from port", PORT);
-});
 
 app.use((err, req, res, next) => {
   if (err.isOperational) {

@@ -18,10 +18,10 @@
   },
   "name": "db",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "type": "module",
   "scripts": {
-    "dev": "node --watch index.js",
+    "dev": "node --watch server.js",
     "test": "vitest",
     "test:watch": "vitest --watch"
   },

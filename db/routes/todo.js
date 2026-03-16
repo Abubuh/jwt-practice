@@ -9,7 +9,7 @@ import {
   updateTodoController,
 } from "../controllers/todo.controller.js";
 import { validateCreateTodo } from "../validations/validateCreateTodo.js";
-import { validateUpdateTodo } from "../validations/validateUpdateTodo.js";
+import { validatePatchTodo } from "../validations/validatePatchTodo.js";
 
 const routerTodos = express.Router();
 routerTodos.use(authMiddleware);
@@ -30,9 +30,18 @@ routerTodos.post(
   createTodoController
 );
 
-routerTodos.patch("/lists/:listId/todos/:todoId", updateTodoController);
+routerTodos.patch(
+  "/lists/:listId/todos/:todoId",
+  authMiddleware,
+  validatePatchTodo,
+  updateTodoController
+);
 
-routerTodos.delete("/lists/:listId/todos/:todoId", deleteController);
+routerTodos.delete(
+  "/lists/:listId/todos/:todoId",
+  authMiddleware,
+  deleteController
+);
 
 routerTodos.get("/lists/:listId/todos/:todoId", authMiddleware, getTodoById);
 
