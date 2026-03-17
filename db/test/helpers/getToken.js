@@ -6,5 +6,5 @@ export const getToken = async () => {
     .post("/login")
     .send({ username: "111111", password: "111111a" });
 
-  return res.body.data.token;
+  return res.body.token;
 };

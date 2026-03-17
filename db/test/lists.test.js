@@ -21,6 +21,54 @@ describe("GET /api/lists", () => {
 
     expect(res.status).toBe(401);
   });
+
+  it("should return only authenticated user's lists", async () => {
+    const unique = Date.now();
+    const userA = `user-a-${unique}`;
+    const userB = `user-b-${unique}`;
+    const password = "pass123";
+
+    await request(app).post("/register").send({ username: userA, password });
+    await request(app).post("/register").send({ username: userB, password });
+
+    const loginA = await request(app)
+      .post("/login")
+      .send({ username: userA, password });
+    const loginB = await request(app)
+      .post("/login")
+      .send({ username: userB, password });
+
+    const tokenA = loginA.body.token;
+    const tokenB = loginB.body.token;
+
+    await request(app)
+      .post("/api/lists")
+      .set("Authorization", `Bearer ${tokenA}`)
+      .send({ title: "List A" });
+
+    await request(app)
+      .post("/api/lists")
+      .set("Authorization", `Bearer ${tokenB}`)
+      .send({ title: "List B" });
+
+    const resA = await request(app)
+      .get("/api/lists")
+      .set("Authorization", `Bearer ${tokenA}`);
+
+    expect(resA.status).toBe(200);
+    expect(resA.body.ok).toBe(true);
+    expect(resA.body.data.some((list) => list.title === "List A")).toBe(true);
+    expect(resA.body.data.some((list) => list.title === "List B")).toBe(false);
+
+    const resB = await request(app)
+      .get("/api/lists")
+      .set("Authorization", `Bearer ${tokenB}`);
+
+    expect(resB.status).toBe(200);
+    expect(resB.body.ok).toBe(true);
+    expect(resB.body.data.some((list) => list.title === "List B")).toBe(true);
+    expect(resB.body.data.some((list) => list.title === "List A")).toBe(false);
+  });
 });
 
 describe("POST /api/lists", () => {

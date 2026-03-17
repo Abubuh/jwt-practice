@@ -35,7 +35,7 @@ describe("POST /login", () => {
       .send({ username: "testuser", password: "test123" });
 
     expect(res.status).toBe(200);
-    expect(res.body.data.token).toBeDefined(); // 👈 verifica que regrese un token
+    expect(res.body.token).toBeDefined(); // 👈 verifica que regrese un token
   });
 
   it("should throw if credentials are wrong", async () => {
