@@ -81,4 +81,19 @@ export class ListRepository {
     );
     return result.rows[0];
   }
+
+  static async getListByUser({ listId, userId }) {
+    const result = await pool.query(
+      `
+      SELECT
+        lists.*,
+        list_members.role
+      FROM lists
+      JOIN list_members ON lists.id = list_members.list_id
+      WHERE lists.id = $1 AND list_members.user_id = $2
+      `,
+      [listId, userId]
+    );
+    return result.rows[0] ?? null;
+  }
 }

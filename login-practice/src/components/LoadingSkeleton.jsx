@@ -1,4 +1,4 @@
-export default function TodoSkeleton() {
+export default function LoadingSkeleton() {
   return (
     <div className="flex flex-col gap-4 animate-pulse">
       {[...Array(5)].map((_, i) => (

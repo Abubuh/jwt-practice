@@ -1,32 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import TodoCard from '../components/TodoCard';
-import useFetchTodos from '../hooks/useFetchTodos';
 import DashboardMessage from '../components/DashboardMessage';
-import TodoActions from '../components/TodoActions';
 import DashboardTitle from '../components/DashboardTitle';
 import DashboardNav from '../components/DashboardNav';
 import DashboardNavContainer from '../components/DashboardNavContainer';
-import TodosContainer from '../components/TodosContainer';
-import { Reorder, motion } from "framer-motion";
 import EmptyState from '../components/EmptyState';
-import TodoSkeleton from '../components/TodoSkeleton';
 import { useAuth } from '../routes/AuthContext';
 import api from '../services/api';
+import useFetchLists from '../hooks/useFetchLists';
+import LoadingSkeleton from '../components/LoadingSkeleton';
+import ContentContainer from '../components/ContentContainer';
+import ListCard from '../components/ListCard';
 const Dashboard = () => {
-  const [errorDelete, setErrorDelete] = useState();
-
-  const { todos, errorTodos, handleDelete, loading, handleReorder } =
-    useFetchTodos();
-
+  const {lists, loading, error } =useFetchLists()
   const navigate = useNavigate();
   const { token, setToken } = useAuth()
   
-  useEffect(() => {
-  if (token === null) {
-    navigate("/login");
-  }
-}, [token]);
+    useEffect(() => {
+    if (token === null) {
+      navigate("/login");
+    }
+  }, [token]);
 
   const handleLogout = () => {
     delete api.defaults.headers.common["Authorization"];
@@ -35,45 +29,39 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-100 to-indigo-200 p-8">
+    <div className="min-h-screen bg-linear-to-br from-blue-200 to-purple-200 p-8">
       <div className="max-w-5xl mx-auto">
         <DashboardNavContainer>
           <DashboardTitle title="Your Tasks ✨" />
           <DashboardNav handleLogout={handleLogout} />
         </DashboardNavContainer>
+        <ContentContainer>
 
-        <TodosContainer>
           {loading ? (
-            <TodoSkeleton/>
-          ) :
-          errorTodos ? (
+            <LoadingSkeleton />
+          ) : error ? (
             <DashboardMessage
-              message="Couldn't load todos! Try again later!"
+              message="Couldn't load lists! Try again later!"
               textColor="text-red-800"
             />
-          ) : 
-           todos.length === 0 ? (
-              <EmptyState />
+          ) : lists.length === 0 ? (
+            <EmptyState />
           ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7 }}
-              className="flex flex-col gap-6"
->
-              <Reorder.Group axis="y" values={todos} onReorder={handleReorder}>
-                {todos.map((todo) => (
-                  <Reorder.Item className='flex gap-4 mb-4' key={todo._id} value={todo}>
-                      <TodoCard todo={todo} />
-                      <div className="flex gap-2 items-center">
-                        <TodoActions handleDelete={handleDelete} todo={todo} />
-                    </div>
-                  </Reorder.Item>
-                ))}
-              </Reorder.Group>
-            </motion.div>
+            <div className="flex flex-col gap-4 mt-1">
+              {lists.map((list) => (
+                <ListCard
+                  key={list.id}
+                  title={list.title}
+                  description={list.description}
+                  role={list.role}
+                  createdAt={list.created_at || list.createdAt}
+                  members={list.members || []}
+                  onClick={() => navigate(`/lists/${list.id}/todos`)}
+                />
+              ))}
+            </div>
           )}
-        </TodosContainer>
+        </ContentContainer>
       </div>
     </div>
   );

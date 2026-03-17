@@ -12,11 +12,9 @@ const Login = () => {
   const [error, setError] = useState();
   const [loading, setLoading] = useState();
   const {token, setToken} = useAuth()
-  useEffect(() => {
-    if (token) navigate('/dashboard');
-  }, [token]);
   
   const handleSubmit = async (form) => {
+    setError('')
     setLoading(true);
     try {
       const res = await api.post('/login', form);

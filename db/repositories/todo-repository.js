@@ -1,13 +1,13 @@
 import { pool } from "../db/db.js";
 export class TodoRepository {
-  static async getTodosByListId({ listId, userId }) {
+  static async getTodosByListId({ listId }) {
     const todos = await pool.query(
       `
       SELECT * FROM todos
       WHERE list_id = $1
-      AND created_by = $2
+      ORDER BY position ASC
       `,
-      [listId, userId]
+      [listId]
     );
     return todos.rows;
   }
@@ -65,19 +65,18 @@ export class TodoRepository {
     return result.rows[0] ?? null;
   }
 
-  static async getTodoById({ todoId, listId, userId }) {
-    console.log(todoId, userId, listId);
+  static async getTodoById({ todoId, listId }) {
     const result = await pool.query(
       `SELECT * FROM todos 
-     WHERE id = $1 AND created_by = $2
-     AND list_id = $3`,
-      [todoId, userId, listId]
+     WHERE id = $1
+     AND list_id = $2`,
+      [todoId, listId]
     );
     return result.rows[0] ?? null;
   }
 
   static async deleteTodoById(todoId) {
-    const result = pool.query(
+    const result = await pool.query(
       `
       DELETE FROM todos
       WHERE id = $1
@@ -85,27 +84,25 @@ export class TodoRepository {
       `,
       [todoId]
     );
-    return result;
+    return result.rows[0] ?? null;
   }
 
-  static async reorderTodos(userId, reordered) {
-    const ids = todos.map((t) => t.id);
-    const positions = todos.map((t) => t.position);
+  static async reorderTodos({ listId, reordered }) {
+    const ids = reordered.map((t) => t.id);
+    const positions = reordered.map((t) => t.position);
 
     const result = await pool.query(
       `UPDATE todos
-     SET position = data.position
-     FROM UNNEST($1::uuid[], $2::int[]) AS data(id, position)
-     WHERE todos.id = data.id
-       AND todos.list_id = $3
-       AND todos.created_by = $4
-     RETURNING *`,
-      [ids, positions, listId, userId]
+       SET position = data.position
+       FROM UNNEST($1::uuid[], $2::int[]) AS data(id, position)
+       WHERE todos.id = data.id
+         AND todos.list_id = $3
+       RETURNING *`,
+      [ids, positions, listId]
     );
 
-    // Si no actualizó todos los que mandaron, algo estaba mal
-    if (result.rows.length !== todos.length) {
-      throw new AppError("Some todos don't belong to this list", 403);
+    if (result.rows.length !== reordered.length) {
+      throw new Error("Some todos don't belong to this list");
     }
     return result.rows;
   }

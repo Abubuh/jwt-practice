@@ -1,8 +1,28 @@
 import crypto from "node:crypto";
 import { TodoRepository } from "../repositories/todo-repository.js";
 import { AppError } from "../errors/AppError.js";
+import { ListMemberRepository } from "../repositories/list-member-repository.js";
 
 export default class TodoService {
+  static async checkMembership({ listId, userId }) {
+    const member = await ListMemberRepository.getMemberByUserId({
+      listId,
+      userId,
+    });
+    if (!member) {
+      throw new AppError("Not authorized", 403);
+    }
+    return member;
+  }
+
+  static async ensureTodoRole({ listId, userId, allowedRoles }) {
+    const member = await this.checkMembership({ listId, userId });
+    if (!allowedRoles.includes(member.role)) {
+      throw new AppError("Not authorized", 403);
+    }
+    return member;
+  }
+
   static async createTodo({
     title,
     priority,
@@ -13,8 +33,13 @@ export default class TodoService {
     const normalizedDescription = description?.trim().replace(/\s+/g, " ");
     const normalizedTitle = title?.trim().replace(/\s+/g, " ");
     console.log(description, title);
+    await this.ensureTodoRole({
+      listId,
+      userId,
+      allowedRoles: ["owner", "admin", "editor"],
+    });
     const now = new Date().toISOString();
-    const todos = await TodoRepository.getTodosByListId({ listId, userId });
+    const todos = await TodoRepository.getTodosByListId({ listId });
     const totalTodos = todos.length;
     const todo = {
       id: crypto.randomUUID(),
@@ -44,12 +69,14 @@ export default class TodoService {
   }
 
   static async getAllTodos({ listId, userId }) {
-    const todos = await TodoRepository.getTodosByListId({ listId, userId });
+    await this.checkMembership({ listId, userId });
+    const todos = await TodoRepository.getTodosByListId({ listId });
     return todos;
   }
 
   static async getTodoByIds({ todoId, userId, listId }) {
-    const todo = await TodoRepository.getTodoById({ todoId, listId, userId });
+    await this.checkMembership({ listId, userId });
+    const todo = await TodoRepository.getTodoById({ todoId, listId });
     if (!todo) throw new AppError("Todo not found", 404);
     return todo;
   }
@@ -58,6 +85,11 @@ export default class TodoService {
     if (!updateData || Object.keys(updateData).length === 0) {
       throw new AppError("Nothing to update", 400);
     }
+    await this.ensureTodoRole({
+      listId,
+      userId,
+      allowedRoles: ["owner", "admin", "editor"],
+    });
     const updatedTodo = await TodoRepository.updateTodoById({
       todoId,
       userId,
@@ -69,28 +101,29 @@ export default class TodoService {
   }
 
   static async deleteTodo(todoId, userId, listId) {
-    const todo = await TodoService.getTodoByIds({ todoId, userId, listId });
-    if (!todo || todo.created_by !== userId)
-      throw new AppError("Todo not found", 404);
+    await this.ensureTodoRole({
+      listId,
+      userId,
+      allowedRoles: ["owner", "admin"],
+    });
+    const todo = await TodoRepository.getTodoById({ todoId, listId });
+    if (!todo) throw new AppError("Todo not found", 404);
     return await TodoRepository.deleteTodoById(todoId);
   }
 
   static async reorderTodos({ listId, userId, todos }) {
-    // Asegurarse que todos pertenezcan al usuario
-    console.log({ listId, userId, todos });
+    await this.ensureTodoRole({
+      listId,
+      userId,
+      allowedRoles: ["owner", "admin", "editor"],
+    });
     if (!todos || todos.length === 0) {
       throw new AppError("Nothing to reorder", 400);
     }
 
-    const ids = todos.map((t) => t._id);
-    // Reasignar order limpio
     const reordered = await TodoRepository.reorderTodos({
       listId,
-      userId,
-      todos: ids.map((id, index) => ({
-        id,
-        position: todos.find((t) => t.id === id).position,
-      })),
+      reordered: todos,
     });
     if (!reordered) throw new AppError("Reorder failed", 400);
     return reordered;

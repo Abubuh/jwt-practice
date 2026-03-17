@@ -24,8 +24,12 @@ export function AuthProvider({ children }) {
     }
   }, [token]);
 
+  const logout = () => {
+    setToken(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ token, setToken }}>
+    <AuthContext.Provider value={{ token, setToken, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -49,8 +49,7 @@ export class ListService {
   }
 
   static async getListService({ listId, userId }) {
-    const list = await ListRepository.getList({ listId, userId });
-    console.log(list);
+    const list = await ListRepository.getListByUser({ listId, userId });
     if (!list) {
       throw new AppError("List not found", 404);
     }

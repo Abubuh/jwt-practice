@@ -1,4 +1,5 @@
 import { ListService } from "../services/list.service.js";
+import { ListMembersService } from "../services/list-member.service.js";
 
 export async function createListController(req, res, next) {
   try {
@@ -71,10 +72,11 @@ export async function getListController(req, res, next) {
     const listId = req.params.listId;
     const userId = req.user.userId;
     const list = await ListService.getListService({ listId, userId });
-    res.status(201).json({
+    const members = await ListMembersService.getListMembers({ listId, userId });
+    res.status(200).json({
       ok: true,
       message: "List found",
-      data: list,
+      data: { ...list, members },
     });
   } catch (error) {
     next(error);

@@ -11,7 +11,8 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      delete api.defaults.headers.common['Authorization'];
+      error.isAuthError = true;
     }
     return Promise.reject(error);
   }

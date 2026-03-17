@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import UserInput from './UserInput';
 import UserButton from './UserButton';
 import ErrorMessage from './ErrorMessage';
@@ -8,6 +8,7 @@ const UserForm = ({ buttonText, onSubmit, error, loading }) => {
     username: '',
     password: '',
   });
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
