@@ -14,7 +14,11 @@ import { authMiddleware } from "./middlewares/auth.middleware.js";
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://tu-app.vercel.app",
+  }),
+);
 app.get("/", (req, res) => {
   res.render("example", { name: "Abubuh" });
 });
