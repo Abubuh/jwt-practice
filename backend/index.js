@@ -16,7 +16,7 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://tu-app.vercel.app",
+    origin: "https://jwt-practice-git-main-abubuhs-projects.vercel.app",
   }),
 );
 app.get("/", (req, res) => {
