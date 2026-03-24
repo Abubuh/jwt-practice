@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
 
-export default function EmptyState({ onCreate }) {
+export default function EmptyState({ onCreate, title, description, buttonText }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -12,20 +11,16 @@ export default function EmptyState({ onCreate }) {
       <div className="text-6xl mb-4">📝</div>
 
       <h2 className="text-2xl font-semibold mb-2">
-        No tienes tareas aún
+        {title}
       </h2>
 
       <p className="text-gray-500 mb-6 max-w-sm">
-        Organiza tu día creando tu primera tarea.
-        Empieza pequeño. Mantente constante.
+        {description}
       </p>
 
-      <Link
-        to='/createTodo'
-        className="px-6 py-2 rounded-xl bg-black text-white hover:opacity-80 transition"
-      >
-        Crear primera tarea
-      </Link>
+      <button onClick={onCreate} className="px-6 py-2 rounded-xl bg-black text-white hover:opacity-80 transition">
+        {buttonText}
+      </button>
     </motion.div>
   );
 }

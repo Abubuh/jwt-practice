@@ -56,4 +56,10 @@ export class UserService {
       token,
     };
   }
+  static async searchUsers(username) {
+    if (!username || username.trim().length < 3) {
+      throw new AppError("Search term must be at least 3 characters", 400);
+    }
+    return await UserRepository.searchByUsername(username.trim());
+  }
 }

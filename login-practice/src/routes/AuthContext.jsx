@@ -1,26 +1,38 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import api from "../services/api";
+import { createContext, useContext, useEffect, useState, useMemo } from 'react';
+import api from '../services/api';
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => {
-    const storedToken = localStorage.getItem("token");
+    const storedToken = localStorage.getItem('token');
 
     if (storedToken) {
-      api.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
+      api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
     }
 
     return storedToken;
   });
 
+  const tokenPayload = useMemo(() => {
+    if (!token) return null;
+    try {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch {
+      return null;
+    }
+  }, [token]);
+
+  const userId = tokenPayload?.userId || null;
+  const username = tokenPayload?.username || null;
+
   useEffect(() => {
     if (token) {
-      localStorage.setItem("token", token);
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      localStorage.setItem('token', token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     } else {
-      localStorage.removeItem("token");
-      delete api.defaults.headers.common["Authorization"];
+      localStorage.removeItem('token');
+      delete api.defaults.headers.common['Authorization'];
     }
   }, [token]);
 
@@ -29,7 +41,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ token, setToken, logout }}>
+    <AuthContext.Provider value={{ token, setToken, logout, userId, username }}>
       {children}
     </AuthContext.Provider>
   );

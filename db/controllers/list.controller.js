@@ -35,6 +35,8 @@ export async function getListsController(req, res, next) {
 
 export async function patchListController(req, res, next) {
   try {
+    console.log("body:", req.body); // 👈
+    console.log("params:", req.params);
     const listId = req.params.listId;
     const { title } = req.body;
     const userId = req.user.userId;

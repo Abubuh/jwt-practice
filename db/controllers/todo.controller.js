@@ -31,8 +31,9 @@ export const getTodoById = async (req, res, next) => {
 };
 
 export const createTodoController = async (req, res, next) => {
+  console.log("body:", req.body);
   try {
-    const { title, priority, description } = req.body;
+    const { title, priority, description, assignedTo } = req.body;
     const listId = req.params.listId;
     const userId = req.user.userId;
     const todo = await TodoService.createTodo({
@@ -41,6 +42,7 @@ export const createTodoController = async (req, res, next) => {
       userId,
       listId,
       description,
+      assignedTo,
     });
     return res.status(201).json({
       ok: true,
@@ -54,6 +56,7 @@ export const createTodoController = async (req, res, next) => {
 
 export const updateTodoController = async (req, res, next) => {
   try {
+    console.log("body:", req.body);
     const { listId, todoId } = req.params;
     const userId = req.user.userId;
     const updateData = {};
@@ -65,7 +68,8 @@ export const updateTodoController = async (req, res, next) => {
     if (req.body.description !== undefined)
       updateData.description = req.body.description;
     if (req.body.assignedTo !== undefined)
-      updateData.assignedTo = req.body.assignedTo;
+      updateData.assignedTo =
+        req.body.assignedTo === "" ? null : req.body.assignedTo;
     if (req.body.updatedBy !== undefined)
       updateData.updatedBy = req.body.updatedBy;
     const updatedTodo = await TodoService.updateTodo(

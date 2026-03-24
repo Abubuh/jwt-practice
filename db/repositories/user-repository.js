@@ -34,4 +34,14 @@ export class UserRepository {
 
     return result.rows[0];
   }
+
+  static async searchByUsername(username) {
+    const result = await pool.query(
+      `SELECT id, username FROM users
+     WHERE username ILIKE $1
+     LIMIT 10`,
+      [`%${username}%`]
+    );
+    return result.rows;
+  }
 }

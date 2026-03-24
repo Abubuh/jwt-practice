@@ -5,6 +5,6 @@ export async function loginUser(credentials) {
 }
 
 export async function registerUser(credentials) {
-  const result = await api.post('/login', credentials);
+  const result = await api.post('/register', credentials);
   return result.data;
 }

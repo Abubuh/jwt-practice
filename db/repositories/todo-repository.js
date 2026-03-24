@@ -38,24 +38,35 @@ export class TodoRepository {
   static async updateTodoById({ listId, todoId, userId, updateData }) {
     const result = await pool.query(
       `UPDATE todos
-      SET
-        title = COALESCE($1, title),
-        completed = COALESCE($2, completed),
-        priority = COALESCE($3, priority),
-        description = COALESCE($4, description),
-        assigned_to = COALESCE($5, assigned_to),
-        updated_by = COALESCE($6, updated_by),
-        updated_at = NOW()
-      WHERE id = $7
-        AND created_by = $8
-        AND list_id = $9
-      RETURNING *`,
+        SET
+          title = COALESCE($1, title),
+          completed = COALESCE($2, completed),
+          priority = COALESCE($3, priority),
+          description = COALESCE($4, description),
+          assigned_to = CASE 
+            WHEN $5 = 'clear' THEN NULL
+            WHEN $5 IS NULL THEN assigned_to
+            ELSE $5::uuid
+          END,
+          updated_by = COALESCE($6, updated_by),
+          updated_at = NOW()
+        WHERE id = $7
+          AND list_id = $9
+          AND EXISTS (
+            SELECT 1 FROM list_members
+            WHERE list_id = $9
+              AND user_id = $8
+              AND role IN ('owner', 'admin', 'editor')
+          )
+        RETURNING *`,
       [
         updateData.title ?? null,
         updateData.completed ?? null,
         updateData.priority ?? null,
         updateData.description ?? null,
-        updateData.assignedTo ?? null,
+        updateData.assignedTo === null
+          ? "clear"
+          : (updateData.assignedTo ?? null),
         updateData.updatedBy ?? null,
         todoId,
         userId,

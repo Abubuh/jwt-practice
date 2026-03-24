@@ -1,61 +1,95 @@
-import { useState } from "react";
-import api from "../services/api";
+import { useState } from 'react';
+import TodoOptionsModal from './modal/TodoOptionsModal';
 
-export default function TodoCard({todo
-}) {
-  const [loading, setLoading] = useState(false)
-  const [completed, setCompleted] = useState(todo.completed)
   const priorityColors = {
-    "low": "bg-green-100 text-green-600",
-    "medium": "bg-yellow-100 text-yellow-600",
-    "high": "bg-red-100 text-red-600",
+    low: 'bg-green-100 text-green-600',
+    medium: 'bg-yellow-100 text-yellow-600',
+    high: 'bg-red-100 text-red-600',
   };
-  
-    const handleTodoCompleted = async () => {
-      setLoading(true)
-      try{
-        await api.patch(`api/user/todos/update/${todo._id}`, {"completed" : !completed})
-        setCompleted(prev => !prev)
-      }catch(error){
-        alert("Couldn't make the change, try  later!")
-      }finally{
-        setLoading(false)
-      }
-    }
+
+export default function TodoCard({
+  todo,
+  canCreateEditAssignReorder,
+  canDeleteTodos,
+  deleteTodo,
+  onToggleCompleted,
+  onPatch,
+  members = [],
+}) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const assignedMember = members.find((m) => m.user_id === todo.assigned_to);
+
   return (
-    <div
-      className={`min-w-110
-        bg-white/80 backdrop-blur-md 
-        rounded-2xl shadow-xl 
+    <>
+      <div
+        className={`
+        bg-white
+        rounded-2xl shadow-md
         p-6 transition-all duration-300
-        ${todo.variant === "hero" ? "w-100 scale-110" : "w-full"}
+        ${todo.variant === 'hero' ? 'w-100 scale-110' : 'w-full'}
       `}
-    >
-      <div className="flex items-start justify-between mb-3">
-        <h3 className={`font-semibold text-lg ${completed && "line-through opacity-50"}`}>
-          {todo.title}
-        </h3>
-        <span
-          className={`px-3 py-1 text-xs rounded-full ${priorityColors[todo.priority.toLowerCase()]}`}
-        >
-          {todo.priority}
-        </span>
+      >
+        <div className="flex justify-between gap-3">
+          <div className="flex flex-col">
+            <h3
+              className={`font-semibold text-xl ${todo.completed && 'line-through opacity-50'}`}
+            >
+              {todo.title}
+            </h3>
+            <p className="text-sm text-gray-500 mb-1">
+              {todo.description || 'No description'}
+            </p>
+            <div className='flex gap-3'>
+              <span
+                className={`px-3 py-1 text-xs rounded-full w-fit ${priorityColors[todo.priority.toLowerCase()]}`}
+              >
+                {todo.priority}
+              </span>
+              {assignedMember ? (
+                  <span className="text-xs text-gray-500 flex items-center gap-1">
+                    Assigned to: {assignedMember.username}
+                  </span>
+              ) : (
+                <span className="text-xs text-gray-400 flex items-center gap-1">Unassigned</span>
+              )}
+            </div>
+          </div>
+          <div className="flex flex-col justify-between">
+            <div className="flex items-center gap-2 justify-center">
+              <input
+                type="checkbox"
+                checked={todo.completed}
+                onChange={() => onToggleCompleted(todo.id, todo.completed)}
+                 disabled={!canCreateEditAssignReorder}
+                className="w-5 h-5 cursor-pointer"></input>
+              <span className="text-sm text-gray-400">
+                {todo.completed ? 'Completed' : 'Pending'}
+              </span>
+            </div>
+            <div className="flex justify-end">
+              {canCreateEditAssignReorder && (
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="bg-white text-black border border-gray-700 hover:bg-gray-200 cursor-pointer rounded px-2 py-1 text-xs font-medium transition"
+                >
+                  ⚙️Settings
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="flex items-center gap-2">
-        <input 
-          type="checkbox"
-          checked={completed}
-          onChange={handleTodoCompleted}
-          className={`w-5 h-5 rounded-md border-2 flex items-center justify-center
-            ${completed ? "bg-blue-500 border-blue-500" : "border-gray-300"}
-          `}
-        >
-        </input>
-          {completed && <span className="text-white text-xs">✓</span>}
-        <span className="text-sm text-gray-400">
-          {completed ? "Completed" : "Pending"}
-        </span>
-      </div>
-    </div>
+      <TodoOptionsModal
+        key={todo.id + JSON.stringify(todo)}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        todo={todo}
+        onDelete={deleteTodo}
+        onPatch={onPatch}
+        members={members}
+        canDeleteTodos={canDeleteTodos}
+      />
+    </>
   );
 }

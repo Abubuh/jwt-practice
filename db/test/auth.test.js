@@ -41,7 +41,7 @@ describe("POST /login", () => {
   it("should throw if credentials are wrong", async () => {
     const res = await request(app)
       .post("/login")
-      .send({ username: "testuser", password: "wrongpassword" });
+      .send({ username: "testuser", password: "wrongpassword1" });
 
     expect(res.status).toBe(401);
   });

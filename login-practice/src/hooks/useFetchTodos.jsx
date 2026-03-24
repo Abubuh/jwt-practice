@@ -24,7 +24,6 @@ const useFetchTodos = () => {
 
   const handleReorder = async (newTodos) => {
   // 1️⃣ Actualización optimista
-  console.log(newTodos)
   setTodos(newTodos);
   try {
     await api.patch("/api/user/todos/reorder", {
@@ -45,7 +44,6 @@ const useFetchTodos = () => {
       await api.delete(`api/user/todos/${id}`);
       setTodos((prev) => prev.filter((todo) => todo._id !== id));
     } catch (error) {
-      console.log(error.response?.message?.data);
     } finally {
       setLoading(false);
     }

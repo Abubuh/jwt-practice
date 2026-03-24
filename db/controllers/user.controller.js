@@ -36,3 +36,13 @@ export const loginController = async (req, res, next) => {
     next(error);
   }
 };
+
+export const searchUsersController = async (req, res, next) => {
+  try {
+    const { username } = req.query;
+    const users = await UserService.searchUsers(username);
+    res.status(200).json({ ok: true, data: users });
+  } catch (error) {
+    next(error);
+  }
+};

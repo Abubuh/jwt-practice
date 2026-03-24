@@ -1,7 +1,28 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
 import request from "supertest";
 import app from "../index.js";
 import { getToken } from "./helpers/getToken.js";
+
+const cleanupLists = async () => {
+  const token = await getToken();
+  const listRes = await request(app)
+    .get("/api/lists")
+    .set("Authorization", `Bearer ${token}`);
+
+  if (listRes.body?.data?.length) {
+    await Promise.all(
+      listRes.body.data.map((item) =>
+        request(app)
+          .delete(`/api/lists/${item.id}`)
+          .set("Authorization", `Bearer ${token}`)
+      )
+    );
+  }
+};
+
+afterEach(async () => {
+  await cleanupLists();
+});
 
 describe("GET /api/lists", () => {
   it("should return lists for authenticated user", async () => {

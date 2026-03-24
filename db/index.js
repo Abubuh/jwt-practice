@@ -2,14 +2,15 @@ import express from "express";
 import cors from "cors";
 import routerTodos from "./routes/todo.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
-import { pool } from "./db/db.js";
 import {
   loginController,
   registerController,
+  searchUsersController,
 } from "./controllers/user.controller.js";
 import routerLists from "./routes/list.js";
 import { validateCreateUser } from "./validations/ValidateCreateUser.js";
 import { validateLoginUser } from "./validations/validateLoginUser.js";
+import { authMiddleware } from "./middlewares/auth.middleware.js";
 
 const app = express();
 app.use(express.json());
@@ -45,4 +46,6 @@ app.use((err, req, res, next) => {
     message: "Internal server error",
   });
 });
+
+app.get("/users/search", authMiddleware, searchUsersController);
 export default app;

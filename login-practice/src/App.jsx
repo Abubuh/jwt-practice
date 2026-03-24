@@ -10,7 +10,7 @@ import EditTodo from './pages/EditTodo';
 import ListTodos from './pages/ListTodos';
 function App() {
   return (
-    <div className='bg-linear-to-br h-screen from-blue-200 to-purple-200'>
+    <div className='bg-linear-to-br min-h-screen h-full from-blue-200 to-purple-200'>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

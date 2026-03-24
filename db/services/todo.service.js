@@ -29,10 +29,12 @@ export default class TodoService {
     userId,
     listId,
     description = null,
+    assignedTo = null,
   }) {
-    const normalizedDescription = description?.trim().replace(/\s+/g, " ");
+    const normalizedDescription = description
+      ? description.trim().replace(/\s+/g, " ")
+      : null;
     const normalizedTitle = title?.trim().replace(/\s+/g, " ");
-    console.log(description, title);
     await this.ensureTodoRole({
       listId,
       userId,
@@ -50,13 +52,15 @@ export default class TodoService {
       userId: userId,
       completed: false,
       created_by: userId,
-      assigned_to: null,
+      assigned_to: assignedTo,
       createdAt: now,
       updatedAt: now,
       position: totalTodos + 1,
     };
     try {
-      await TodoRepository.create(todo);
+      console.log("todo a crear:", todo);
+      const created = await TodoRepository.create(todo);
+      return created;
     } catch (error) {
       throw new AppError(
         "Create Todo Failed",
@@ -65,7 +69,6 @@ export default class TodoService {
         error
       );
     }
-    return todo;
   }
 
   static async getAllTodos({ listId, userId }) {

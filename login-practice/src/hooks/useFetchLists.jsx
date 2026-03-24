@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getLists, getListMembers, deleteList } from '../services/listService';
+import { getLists, getListMembers, deleteList, createList, updateList } from '../services/listService';
 import { useAuth } from '../routes/AuthContext';
 
 const useFetchLists = () => {
@@ -49,7 +49,31 @@ const useFetchLists = () => {
       await deleteList(listId);
       setLists((prev) => prev.filter((list) => list.id !== listId));
     } catch (err) {
-      console.error(err);
+      setError(err.response?.data?.message || 'Failed to delete list');
+    }
+  };
+
+  const handleUpdateList = async (listId, title) => {
+  try {
+    const result = await updateList(listId, { title });
+  setLists((prev) =>
+    prev.map((list) =>
+      list.id === listId
+        ? { ...list, title: result.data.data.title } 
+        : list
+    )
+  );
+  } catch (err) {
+    setError(err.response?.data?.message || 'Failed to update list');
+  }
+};
+
+  const handleCreateList = async (title) => {
+    try {
+      const result = await createList(title);
+      setLists((prev) => [...prev, result.data.data]);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to create list');
     }
   };
 
@@ -57,7 +81,9 @@ const useFetchLists = () => {
     lists,
     loading,
     error,
+    handleCreateList,
     handleDeleteList,
+    handleUpdateList
   };
 };
 

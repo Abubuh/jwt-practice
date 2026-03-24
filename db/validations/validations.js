@@ -65,15 +65,15 @@ export class Validation {
     if (title.trim().length < 4) {
       throw new AppError("Title must be at least 3 characters long", 400);
     }
-    if (title.length > 251) {
-      throw new AppError("Title must have less than 250 characters.", 400);
+    if (title.length > 50) {
+      throw new AppError("Title must have less than 50 characters.", 400);
     }
   }
 
   static description(description, { required = false } = {}) {
-    if (description === undefined) {
+    if (description === undefined || description === null) {
       if (required) {
-        throw new AppError("Todo needs a title!", 400);
+        throw new AppError("Todo needs a description!", 400);
       }
       return;
     }

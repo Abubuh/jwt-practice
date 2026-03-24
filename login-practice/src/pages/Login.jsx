@@ -1,26 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
 import UserForm from '../components/UserForm';
 import UserFormTitle from '../components/UserFormTitle';
 import UserFormContainer from '../components/UserFormContainer';
 import UserFormRouter from '../components/UserFormRouter';
 import { useAuth } from '../routes/AuthContext';
+import { loginUser } from '@/services/authService';
 
 const Login = () => {
   const navigate = useNavigate();
   const [error, setError] = useState();
   const [loading, setLoading] = useState();
-  const {token, setToken} = useAuth()
+  const { setToken} = useAuth()
   
   const handleSubmit = async (form) => {
     setError('')
     setLoading(true);
     try {
-      const res = await api.post('/login', form);
-      const token = res.data.token
+      const res = await loginUser(form);
+      const token = res.token
       setToken(token);
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       navigate('/dashboard');
     } catch (error) {
       setError(error.response?.data?.message || 'Oh no, something went wrong');

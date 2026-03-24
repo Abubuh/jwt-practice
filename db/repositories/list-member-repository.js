@@ -12,7 +12,7 @@ export class ListMemberRepository {
 
   static async getMemberById({ memberId }) {
     const result = await pool.query(
-      `SELECT * FROM list_members WHERE user_id = $1`,
+      `SELECT * FROM list_members WHERE id = $1`,
       [memberId]
     );
     return result.rows[0] ?? null;
@@ -25,7 +25,20 @@ export class ListMemberRepository {
      RETURNING *`,
       [listId, userId, role]
     );
-    return result.rows[0];
+    const member = await pool.query(
+      `SELECT 
+      list_members.id,
+      list_members.list_id,
+      list_members.role,
+      list_members.joined_at,
+      users.id AS user_id,
+      users.username
+     FROM list_members
+     JOIN users ON list_members.user_id = users.id
+     WHERE list_members.id = $1`,
+      [result.rows[0].id]
+    );
+    return member.rows[0];
   }
 
   static async getListMembers({ listId, userId }) {
@@ -60,11 +73,10 @@ export class ListMemberRepository {
   }
 
   static async patchMember({ memberId, role }) {
-    console.log(memberId, role);
     const result = await pool.query(
       `UPDATE list_members
      SET role = $1
-     WHERE user_id = $2
+     WHERE id = $2
      RETURNING *`,
       [role, memberId]
     );

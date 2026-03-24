@@ -1,28 +1,51 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../routes/AuthContext';
-import { getListById } from '../services/listService';
-import { getTodos, deleteTodo, createTodo } from '../services/todoService';
+import { deleteList, getListById, updateList } from '../services/listService';
+import {
+  getTodos,
+  deleteTodo,
+  createTodo,
+  patchTodo,
+} from '../services/todoService';
 import DashboardTitle from '../components/DashboardTitle';
-import ListCard from '../components/ListCard';
 import ContentContainer from '../components/ContentContainer';
+import TodoCard from '../components/TodoCard';
+import CreateTodoModal from '../components/modal/CreateTodoModal';
+import InviteMemberModal from '../components/modal/InviteMemberModal';
+import {
+  addMember,
+  removeMember,
+  changeMemberRole,
+} from '../services/listMemberService';
+import MemberOptionsModal from '../components/modal/MemberOptionsModal';
+import ListOptionsModal from '../components/modal/ListOptionsModal';
 
 const ListTodos = () => {
   const { listId } = useParams();
-  const { logout } = useAuth();
-  const navigate = useNavigate();
-
+  const { logout, userId } = useAuth();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [list, setList] = useState(null);
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  const [isListModalOpen, setIsListModalOpen] = useState(false);
 
-  const myRole = useMemo(() => list?.role || 'viewer', [list]);
+  const navigate = useNavigate();
+  const myRole = useMemo(() => {
+    if (!list) return 'viewer';
+    const me = list.members?.find((m) => m.user_id === userId);
+    return me?.role || 'viewer';
+  }, [list, userId]);
 
-  const canCreateEditAssignReorder = ['owner', 'admin', 'editor'].includes(myRole);
+  const canCreateEditAssignReorder = ['owner', 'admin', 'editor'].includes(
+    myRole
+  );
   const canDeleteTodos = ['owner', 'admin'].includes(myRole);
   const canManageMembers = ['owner', 'admin', 'editor'].includes(myRole);
-  const canDeleteList = myRole === 'owner';
 
   useEffect(() => {
     const fetchListAndTodos = async () => {
@@ -52,22 +75,88 @@ const ListTodos = () => {
       await deleteTodo(listId, todoId);
       setTodos((prev) => prev.filter((todo) => todo.id !== todoId));
     } catch (err) {
-      console.error(err);
       setError('Failed to delete todo');
     }
   };
 
-  const handleCreatePlaceholderTodo = async () => {
+  const handleInviteMember = async ({ userId, role }) => {
+    const result = await addMember(listId, { userId, role });
+    setList((prev) => ({
+      ...prev,
+      members: [...(prev.members || []), result.data.data],
+    }));
+  };
+
+  const handleRemoveMember = async (memberId) => {
+    await removeMember(listId, memberId);
+    setList((prev) => ({
+      ...prev,
+      members: prev.members.filter((m) => m.id !== memberId),
+    }));
+  };
+
+  const handleChangeRole = async (memberId, role) => {
+    await changeMemberRole(listId, memberId, role);
+    setList((prev) => ({
+      ...prev,
+      members: prev.members.map((m) =>
+        m.id === memberId ? { ...m, role } : m
+      ),
+    }));
+  };
+
+  const handlePatchTodo = async (todoId, data) => {
     try {
-      const newTodo = await createTodo(listId, {
-        title: 'New Todo',
-        priority: 'low',
-        description: 'Placeholder',
-      });
-      setTodos((prev) => [...prev, newTodo.data?.data || newTodo]);
+      const result = await patchTodo(listId, todoId, data);
+      setTodos((prev) =>
+        prev.map((todo) => {
+          return todo.id === todoId ? { ...todo, ...result.data.data } : todo;
+        })
+      );
     } catch (err) {
       console.error(err);
+      setError('Failed to update todo');
+    }
+  };
+
+  const handleCreateTodo = async (data) => {
+    try {
+      const result = await createTodo(listId, data);
+      setTodos((prev) => [...prev, result.data.data]);
+    } catch (err) {
       setError('Failed to create todo');
+    }
+  };
+
+  const handleToggleCompleted = async (todoId, currentCompleted) => {
+    try {
+      await patchTodo(listId, todoId, { completed: !currentCompleted });
+      setTodos((prev) =>
+        prev.map((todo) =>
+          todo.id === todoId ? { ...todo, completed: !currentCompleted } : todo
+        )
+      );
+    } catch (err) {
+      setError('Failed to update todo');
+    }
+  };
+
+  const handleDeleteList = async () => {
+    try {
+      await deleteList(listId);
+      navigate('/dashboard');
+    } catch (err) {
+      setError('Failed to delete list');
+    }
+  };
+
+  const handleUpdateList = async (title) => {
+    try {
+      const result = await updateList(listId, { title });
+      setList((prev) => ({ ...prev, title: result.data.data.title }));
+    } catch (err) {
+      console.error(err);
+      setError('Failed to update list');
     }
   };
 
@@ -75,160 +164,153 @@ const ListTodos = () => {
   if (error) return <p className="p-6 text-red-600">{error}</p>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-200 to-purple-200 p-8">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[3fr_1fr] gap-6">
-        <div>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-            <DashboardTitle title={list?.title || 'Untitled'} />
-
-            <div className="flex items-center gap-2">
-              {canCreateEditAssignReorder && (
-                <>
-                  <button
-                    onClick={() => navigate(-1)}
-                    className="rounded border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Back
-                  </button>
-                  <button
-                    onClick={handleCreatePlaceholderTodo}
-                    className="rounded border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Create Todo
-                  </button>
-                </>
-              )}
-              <button
-                onClick={() => {
-                  logout();
-                  navigate('/login');
-                }}
-                className="rounded border border-red-300 bg-red-50 px-3 py-1.5 text-sm text-red-700 hover:bg-red-100"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-          <ContentContainer>
-            <h2 className="text-lg font-semibold text-gray-800 mb-3">Todos</h2>
-
-            {todos.length === 0 ? (
-              <p className="mt-3 text-gray-600">No todos yet</p>
-            ) : (
-              <ul className="mt-3 space-y-3">
-                {todos.map((todo) => (
-                  <li key={todo.id} className="bg-white p-4 rounded-lg shadow-sm">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="font-semibold">{todo.title}</h3>
-                        <p className="text-sm text-gray-500">
-                          {todo.description || 'No description'}
-                        </p>
-                        <p className="text-xs text-gray-400">Priority: {todo.priority}</p>
-                      </div>
-                      <div className="flex gap-2">
-                        {canCreateEditAssignReorder && (
-                          <button
-                            onClick={() => navigate(`/editTodo/${todo.id}`)}
-                            className="rounded bg-yellow-500 px-2 py-1 text-xs text-white"
-                          >
-                            Edit
-                          </button>
-                        )}
-                        {canDeleteTodos && (
-                          <button
-                            onClick={() => handleDeleteTodo(todo.id)}
-                            className="rounded bg-red-500 px-2 py-1 text-xs text-white"
-                          >
-                            Delete
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+    <>
+      <div className="min-h-screen max-w-6xl mx-auto from-blue-200 to-purple-200 p-8 ">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+          <DashboardTitle title={list?.title || 'Untitled'} />
+          <div className="flex items-center gap-2">
+            {canCreateEditAssignReorder && (
+              <>
+                <button
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className="bg-white text-blue-600 border border-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg shadow-sm transition"
+                >
+                  Create Todo
+                </button>
+              </>
             )}
-                </ContentContainer>
-        </div>
-
-        <aside className="self-start rounded-xl bg-white p-4 shadow-inner">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold">Members</h3>
             <button
-              className="rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-700 hover:bg-gray-100"
-              onClick={() => alert('Invite user (pending)')}
+              onClick={() => navigate('/dashboard')}
+              className="bg-white text-gray-700 border border-gray-600 hover:bg-gray-50 px-4 py-2 rounded-lg shadow-sm transition"
             >
-              Invite
+              Back
+            </button>
+            <button
+              onClick={() => {
+                logout();
+                navigate('/login');
+              }}
+              className="bg-white text-red-600 border border-red-600 hover:bg-red-50 px-4 py-2 rounded-lg shadow-sm transition"
+            >
+              Logout
             </button>
           </div>
+        </div>
+        <div className="mx-auto grid grid-cols-1 lg:grid-cols-[3fr_1fr] gap-6">
+          <div>
+            <ContentContainer>
+              <h2 className="text-lg font-semibold text-gray-800 mb-3">
+                Todos
+              </h2>
 
-          <div className="flex flex-col gap-2">
-            {list?.members?.map((member) => (
-              <div
-                key={member.user_id}
-                className="flex items-center justify-between rounded border border-gray-200 bg-gray-50 p-2"
-              >
-                <div>
-                  <div className="text-sm font-medium text-gray-700">{member.username}</div>
-                  <div className="text-xs text-gray-500">{member.role}</div>
-                </div>
-                {canManageMembers && member.user_id !== list?.created_by && (
-                  <div className="relative">
+              {todos.length === 0 ? (
+                <p className="mt-3 text-gray-600">No todos yet</p>
+              ) : (
+                <ul className="mt-3 space-y-3">
+                  {todos.map((todo) => (
+                    <li key={todo.id}>
+                      <TodoCard
+                        todo={todo}
+                        canCreateEditAssignReorder={canCreateEditAssignReorder}
+                        canDeleteTodos={canDeleteTodos}
+                        listId={listId}
+                        deleteTodo={handleDeleteTodo}
+                        onToggleCompleted={handleToggleCompleted}
+                        onPatch={handlePatchTodo}
+                        members={list?.members || []}
+                      ></TodoCard>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </ContentContainer>
+          </div>
+          <aside className="self-start rounded-xl bg-white p-4 shadow-inner">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold">Members</h3>
+
+              {['owner', 'admin'].includes(myRole) && (
+                <button
+                  onClick={() => setIsInviteModalOpen(true)}
+                  className="border rounded-md py-1 px-3 border-black"
+                >
+                  Invite
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              {list?.members?.map((member) => (
+                <div
+                  key={member.user_id}
+                  className="flex items-center justify-between rounded border border-gray-200 bg-gray-50 p-2"
+                >
+                  <div>
+                    <div className="text-sm font-medium text-gray-700">
+                      {member.username}
+                    </div>
+                    <div className="text-xs text-gray-500">{member.role}</div>
+                  </div>
+                  {canManageMembers && member.role !== 'owner' && (
                     <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        const menu = e.currentTarget.nextSibling;
-                        if (menu) menu.classList.toggle('hidden');
+                      onClick={() => {
+                        setSelectedMember(member);
+                        setIsMemberModalOpen(true);
                       }}
                       className="rounded px-2 py-1 text-xs border border-gray-300 bg-white hover:bg-gray-100"
                     >
                       ⋮
                     </button>
-                    <div className="hidden absolute right-0 mt-1 w-32 rounded border border-gray-200 bg-white shadow-lg z-10">
-                      <button
-                        onClick={() => alert('Change role (pending)')}
-                        className="block w-full text-left px-2 py-1 text-xs text-gray-700 hover:bg-gray-100"
-                      >
-                        Change role
-                      </button>
-                      <button
-                        onClick={() => alert('Remove user (pending)')}
-                        className="block w-full text-left px-2 py-1 text-xs text-gray-700 hover:bg-gray-100"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+                  )}
+                </div>
+              ))}
+            </div>
 
-          <div className="mt-4 text-xs text-gray-500">
-            Your role: <span className="font-semibold">{myRole}</span>
-          </div>
-
-          {canDeleteList && (
-            <button
-              className="mt-4 w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              onClick={() => alert('Delete list (pending)')}
-            >
-              Delete list
-            </button>
-          )}
-
-          {['owner', 'admin'].includes(myRole) && (
-            <button
-              className="mt-2 w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              onClick={() => alert('Edit list (pending)')}
-            >
-              Edit list
-            </button>
-          )}
-        </aside>
+            <div className="mt-4 text-xs text-gray-500 mb-2">
+              Your role: <span className="font-semibold">{myRole}</span>
+            </div>
+            {['owner', 'admin', 'editor'].includes(myRole) && (
+              <button className='border px-2 py-1 w-full  border-black rounded-md cursor-pointer hover:bg-gray-200' onClick={() => setIsListModalOpen(true)}>
+                ⚙️ List settings
+              </button>
+            )}
+          </aside>
+        </div>
       </div>
-    </div>
+      <CreateTodoModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreate={handleCreateTodo}
+        members={list?.members || []}
+      />
+      <InviteMemberModal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        onInvite={handleInviteMember}
+        existingMembers={list?.members || []}
+      />
+      {selectedMember && (
+        <MemberOptionsModal
+          isOpen={isMemberModalOpen}
+          onClose={() => {
+            setIsMemberModalOpen(false);
+            setSelectedMember(null);
+          }}
+          member={selectedMember}
+          onChangeRole={handleChangeRole}
+          onRemove={handleRemoveMember}
+          myRole={myRole}
+        />
+      )}
+      <ListOptionsModal
+        isOpen={isListModalOpen}
+        onClose={() => setIsListModalOpen(false)}
+        list={list}
+        onUpdate={handleUpdateList}
+        onDelete={handleDeleteList}
+        role={myRole}
+      />
+    </>
   );
 };
 

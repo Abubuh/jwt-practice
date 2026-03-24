@@ -1,7 +1,6 @@
 import { Validation } from "./validations.js";
 
 export const validateCreateTodo = (req, res, next) => {
-  console.log("body:", req.body); // 👈
   const { title, priority, description } = req.body;
   Validation.todoTitle(title, { required: true });
   Validation.description(description, { required: false });
