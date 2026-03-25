@@ -6,7 +6,7 @@ export const DATABASE_URL = process.env.DATABASE_URL;
 const DEFAULT_CORS_ORIGINS = [
   "https://jwt-practice-git-main-abubuhs-projects.vercel.app",
   "http://localhost:5173",
-  "https://jwt-practice-three.vercel.app/",
+  "https://jwt-practice-three.vercel.app",
 ];
 
 export function getCorsOrigins() {
