@@ -21,7 +21,7 @@ import {
 import MemberOptionsModal from '../components/modal/MemberOptionsModal';
 import ListOptionsModal from '../components/modal/ListOptionsModal';
 import LoadingSkeleton from '@/components/LoadingSkeleton';
-import ErrorMessage from '@/components/ErrorMessage';
+import FetchErrorMessage from '@/components/FetchErrorMessage';
 
 const ListTodos = () => {
   const { listId } = useParams();
@@ -205,7 +205,7 @@ const ListTodos = () => {
                 )
                   :
                   error ? (
-                    <ErrorMessage type="error"  />
+                    <FetchErrorMessage type="error"  />
                     
                   ) :
                   <>
