@@ -31,7 +31,7 @@ const ListTodos = () => {
   const [list, setList] = useState(null);
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("this is a test");
+  const [error, setError] = useState(null);
   const [selectedMember, setSelectedMember] = useState(null);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isListModalOpen, setIsListModalOpen] = useState(false);
@@ -52,6 +52,7 @@ const ListTodos = () => {
   useEffect(() => {
     const fetchListAndTodos = async () => {
       setLoading(true);
+      setError(null)
       try {
         const listRes = await getListById(listId);
         const todoRes = await getTodos(listId);
