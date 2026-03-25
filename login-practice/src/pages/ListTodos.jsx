@@ -20,6 +20,8 @@ import {
 } from '../services/listMemberService';
 import MemberOptionsModal from '../components/modal/MemberOptionsModal';
 import ListOptionsModal from '../components/modal/ListOptionsModal';
+import LoadingSkeleton from '@/components/LoadingSkeleton';
+import ErrorMessage from '@/components/ErrorMessage';
 
 const ListTodos = () => {
   const { listId } = useParams();
@@ -29,7 +31,7 @@ const ListTodos = () => {
   const [list, setList] = useState(null);
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("this is a test");
   const [selectedMember, setSelectedMember] = useState(null);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isListModalOpen, setIsListModalOpen] = useState(false);
@@ -50,7 +52,6 @@ const ListTodos = () => {
   useEffect(() => {
     const fetchListAndTodos = async () => {
       setLoading(true);
-      setError(null);
       try {
         const listRes = await getListById(listId);
         const todoRes = await getTodos(listId);
@@ -160,8 +161,6 @@ const ListTodos = () => {
     }
   };
 
-  if (loading) return <p className="p-6">Loading...</p>;
-  if (error) return <p className="p-6 text-red-600">{error}</p>;
 
   return (
     <>
@@ -199,30 +198,43 @@ const ListTodos = () => {
         <div className="mx-auto grid grid-cols-1 lg:grid-cols-[3fr_1fr] gap-6">
           <div>
             <ContentContainer>
-              <h2 className="text-lg font-semibold text-gray-800 mb-3">
-                Todos
-              </h2>
-
-              {todos.length === 0 ? (
-                <p className="mt-3 text-gray-600">No todos yet</p>
-              ) : (
-                <ul className="mt-3 space-y-3">
-                  {todos.map((todo) => (
-                    <li key={todo.id}>
-                      <TodoCard
-                        todo={todo}
-                        canCreateEditAssignReorder={canCreateEditAssignReorder}
-                        canDeleteTodos={canDeleteTodos}
-                        listId={listId}
-                        deleteTodo={handleDeleteTodo}
-                        onToggleCompleted={handleToggleCompleted}
-                        onPatch={handlePatchTodo}
-                        members={list?.members || []}
-                      ></TodoCard>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              {
+                loading ?  (
+                  <LoadingSkeleton/>
+                )
+                  :
+                  error ? (
+                    <ErrorMessage type="error"  />
+                    
+                  ) :
+                  <>
+                  <h2 className="text-lg font-semibold text-gray-800 mb-3">
+                    Todos
+                  </h2>
+    
+                  {todos.length === 0 ? (
+                    <p className="mt-3 text-gray-600">No todos yet</p>
+                  ) : (
+                    <ul className="mt-3 space-y-3">
+                      {todos.map((todo) => (
+                        <li key={todo.id}>
+                          <TodoCard
+                            todo={todo}
+                            canCreateEditAssignReorder={canCreateEditAssignReorder}
+                            canDeleteTodos={canDeleteTodos}
+                            listId={listId}
+                            deleteTodo={handleDeleteTodo}
+                            onToggleCompleted={handleToggleCompleted}
+                            onPatch={handlePatchTodo}
+                            members={list?.members || []}
+                            ></TodoCard>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                
+                  </>
+              }
             </ContentContainer>
           </div>
           <aside className="self-start rounded-xl bg-white p-4 shadow-inner">

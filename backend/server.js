@@ -1,3 +1,4 @@
+import "dotenv/config";
 import app from "./index.js";
 import { PORT } from "./config.js";
 

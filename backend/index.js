@@ -11,12 +11,13 @@ import routerLists from "./routes/list.js";
 import { validateCreateUser } from "./validations/ValidateCreateUser.js";
 import { validateLoginUser } from "./validations/validateLoginUser.js";
 import { authMiddleware } from "./middlewares/auth.middleware.js";
+import { getCorsOrigins } from "./config.js";
 
 const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://jwt-practice-git-main-abubuhs-projects.vercel.app",
+    origin: getCorsOrigins(),
   }),
 );
 app.get("/", (req, res) => {

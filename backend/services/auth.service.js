@@ -1,7 +1,6 @@
 import { UserRepository } from "../repositories/user-repository.js";
-import { Validation } from "../validations/validations.js";
 import bcrypt from "bcrypt";
-import { JWT_SECRET, SALT_ROUNDS } from "../config.js";
+import { JWT_SECRET } from "../config.js";
 import jwt from "jsonwebtoken";
 import crypto from "node:crypto";
 import { AppError } from "../errors/AppError.js";
@@ -40,7 +39,10 @@ export class UserService {
       throw new AppError("User already exists", 409);
     }
     const id = crypto.randomUUID();
-    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+    const hashedPassword = await bcrypt.hash(
+      password,
+      parseInt(process.env.SALT_ROUNDS),
+    );
     await UserRepository.createUser({
       id,
       username: normalizedUsername,

@@ -1,6 +1,14 @@
 import axios from 'axios';
+
+const defaultProdApi =
+  'https://jwt-practice-production.up.railway.app';
+
+const baseURL =
+  import.meta.env.VITE_API_URL ??
+  (import.meta.env.PROD ? defaultProdApi : 'http://localhost:3000');
+
 const api = axios.create({
-  baseURL: 'https://jwt-practice-production.up.railway.app',
+  baseURL,
 });
 //Un interceptor es algo que se ejecuta:
 //Justo antes de que se envíe cualquier request.
