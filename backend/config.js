@@ -7,6 +7,7 @@ const DEFAULT_CORS_ORIGINS = [
   "https://jwt-practice-git-main-abubuhs-projects.vercel.app",
   "http://localhost:5173",
   "https://jwt-practice-three.vercel.app",
+  "https://task-overflow-abubuh.vercel.app/",
 ];
 
 export function getCorsOrigins() {
