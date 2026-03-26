@@ -30,7 +30,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-100 to-indigo-100">
+    <div className="min-h-screen bg-linear-to-br from-blue-200 to-purple-200 ">
       <Navbar handleLogout={handleLogout} />
       <div className="max-w-5xl mx-auto px-6 py-8">
         <div className="flex items-center justify-between mb-6">
