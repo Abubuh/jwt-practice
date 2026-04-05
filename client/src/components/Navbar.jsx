@@ -5,7 +5,7 @@ const Navbar = ({ handleLogout }) => {
   const initial = username?.charAt(0).toUpperCase() || '?';
 
   return (
-    <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shadow-sm">
+    <nav className="bg-white border-b border-gray-200  py-3 flex items-center w-7xl justify-between shadow-sm">
       <span className="font-mono text-blue-600 font-semibold text-base tracking-wide">Taskflow.</span>
       <div className="flex items-center gap-3">
         <span className="text-sm text-gray-500">{username}</span>
