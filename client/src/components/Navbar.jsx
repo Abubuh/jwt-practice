@@ -6,7 +6,7 @@ const Navbar = ({ handleLogout }) => {
 
   return (
     <nav className="bg-white border-b border-gray-200 shadow-sm">
-      <div className='flex w-7xl py-3 items-center justify-between'>
+      <div className='flex w-7xl py-3 items-center justify-between mx-auto'>
 
         <span className="font-mono text-blue-600 font-semibold text-base tracking-wide">Taskflow.</span>
         <div className="flex items-center gap-3">
