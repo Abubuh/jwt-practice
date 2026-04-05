@@ -1,4 +1,4 @@
-# Aplicación Colaborativa de Tareas (Todo App)
+# Aplicación Colaborativa de Tareas
 
 Una aplicación web full-stack de gestión de tareas colaborativa, donde los usuarios pueden crear listas, invitar compañeros, asignar roles y administrar tareas en conjunto.
 
@@ -14,16 +14,16 @@ La mayoría de las aplicaciones de tareas son individuales. Este proyecto aborda
 
 - **Autenticación** — Registro e inicio de sesión con sesiones basadas en JWT. Las contraseñas se almacenan con hash usando bcrypt.
 - **Listas de tareas** — Crear, renombrar y eliminar listas personales o compartidas.
-- **Tareas (Todos)** — Crear, actualizar, completar, eliminar y reordenar tareas dentro de una lista.
+- **Tareas** — Crear, actualizar, completar, eliminar y reordenar tareas dentro de una lista.
 - **Colaboración** — Invitar a otros usuarios a una lista y asignarles un rol.
 - **Permisos por rol** — Cuatro roles con distintas capacidades:
 
-  | Rol     | Crear/Editar tareas | Eliminar tareas | Gestionar miembros |
-  |---------|:-------------------:|:---------------:|:------------------:|
-  | Owner   | Sí                  | Sí              | Sí                 |
-  | Admin   | Sí                  | Sí              | Sí                 |
-  | Editor  | Sí                  | No              | Sí                 |
-  | Viewer  | No                  | No              | No                 |
+  | Rol    | Crear/Editar tareas | Eliminar tareas | Gestionar miembros |
+  | ------ | :-----------------: | :-------------: | :----------------: |
+  | Owner  |         Sí          |       Sí        |         Sí         |
+  | Admin  |         Sí          |       Sí        |         Sí         |
+  | Editor |         Sí          |       No        |         Sí         |
+  | Viewer |         No          |       No        |         No         |
 
 - **Gestión de miembros** — Cambiar el rol de un miembro o eliminarlo de la lista.
 - **Reordenamiento con drag & drop** — Reorganizar tareas arrastrando y soltando (dnd-kit).
@@ -44,34 +44,34 @@ Dec2025/
 
 ### Backend (`/backend`)
 
-| Tecnología | Uso |
-|---|---|
-| **Node.js** | Entorno de ejecución |
-| **Express 5** | Servidor HTTP y enrutamiento |
-| **PostgreSQL** | Base de datos relacional |
-| **pg** | Cliente de PostgreSQL |
-| **jsonwebtoken** | Generación y validación de JWT |
-| **bcrypt** | Hash de contraseñas |
-| **dotenv** | Gestión de variables de entorno |
-| **cors** | Control de acceso entre orígenes |
-| **Vitest** | Testing unitario e integración |
-| **Supertest** | Testing de endpoints HTTP |
+| Tecnología       | Uso                              |
+| ---------------- | -------------------------------- |
+| **Node.js**      | Entorno de ejecución             |
+| **Express 5**    | Servidor HTTP y enrutamiento     |
+| **PostgreSQL**   | Base de datos relacional         |
+| **pg**           | Cliente de PostgreSQL            |
+| **jsonwebtoken** | Generación y validación de JWT   |
+| **bcrypt**       | Hash de contraseñas              |
+| **dotenv**       | Gestión de variables de entorno  |
+| **cors**         | Control de acceso entre orígenes |
+| **Vitest**       | Testing unitario e integración   |
+| **Supertest**    | Testing de endpoints HTTP        |
 
 El backend sigue una arquitectura por capas: `routes → controllers → services → repositories`.
 
 ### Frontend (`/login-practice`)
 
-| Tecnología | Uso |
-|---|---|
-| **React 19** | Librería de interfaz de usuario |
-| **Vite** | Bundler y servidor de desarrollo |
-| **React Router DOM v7** | Enrutamiento del lado del cliente |
-| **Tailwind CSS v4** | Estilos utility-first |
-| **shadcn/ui + Radix UI** | Componentes UI accesibles |
-| **Framer Motion** | Animaciones y transiciones |
-| **dnd-kit** | Drag & drop para reordenar tareas |
-| **Axios** | Cliente HTTP para llamadas a la API |
-| **HugeIcons** | Librería de iconos |
+| Tecnología               | Uso                                 |
+| ------------------------ | ----------------------------------- |
+| **React 19**             | Librería de interfaz de usuario     |
+| **Vite**                 | Bundler y servidor de desarrollo    |
+| **React Router DOM v7**  | Enrutamiento del lado del cliente   |
+| **Tailwind CSS v4**      | Estilos utility-first               |
+| **shadcn/ui + Radix UI** | Componentes UI accesibles           |
+| **Framer Motion**        | Animaciones y transiciones          |
+| **dnd-kit**              | Drag & drop para reordenar tareas   |
+| **Axios**                | Cliente HTTP para llamadas a la API |
+| **HugeIcons**            | Librería de iconos                  |
 
 ---
 
@@ -79,23 +79,23 @@ El backend sigue una arquitectura por capas: `routes → controllers → service
 
 Todas las rutas excepto `/login` y `/register` requieren un header `Authorization: Bearer <token>` válido.
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| POST | `/login` | Autenticar usuario |
-| POST | `/register` | Crear nueva cuenta |
-| GET | `/lists` | Obtener todas las listas del usuario actual |
-| POST | `/lists` | Crear una nueva lista |
-| GET | `/lists/:listId` | Obtener una lista con sus miembros |
-| PATCH | `/lists/:listId` | Renombrar una lista |
-| DELETE | `/lists/:listId` | Eliminar una lista |
-| GET | `/lists/:listId/todos` | Obtener todas las tareas de una lista |
-| POST | `/lists/:listId/todos` | Crear una tarea |
-| PATCH | `/lists/:listId/todos/:todoId` | Actualizar una tarea |
-| DELETE | `/lists/:listId/todos/:todoId` | Eliminar una tarea |
-| GET | `/lists/:listId/members` | Obtener miembros de la lista |
-| POST | `/lists/:listId/members` | Invitar a un miembro |
-| PATCH | `/lists/:listId/members/:memberId/role` | Cambiar el rol de un miembro |
-| DELETE | `/lists/:listId/members/:memberId` | Eliminar un miembro |
+| Método | Endpoint                                | Descripción                                 |
+| ------ | --------------------------------------- | ------------------------------------------- |
+| POST   | `/login`                                | Autenticar usuario                          |
+| POST   | `/register`                             | Crear nueva cuenta                          |
+| GET    | `/lists`                                | Obtener todas las listas del usuario actual |
+| POST   | `/lists`                                | Crear una nueva lista                       |
+| GET    | `/lists/:listId`                        | Obtener una lista con sus miembros          |
+| PATCH  | `/lists/:listId`                        | Renombrar una lista                         |
+| DELETE | `/lists/:listId`                        | Eliminar una lista                          |
+| GET    | `/lists/:listId/todos`                  | Obtener todas las tareas de una lista       |
+| POST   | `/lists/:listId/todos`                  | Crear una tarea                             |
+| PATCH  | `/lists/:listId/todos/:todoId`          | Actualizar una tarea                        |
+| DELETE | `/lists/:listId/todos/:todoId`          | Eliminar una tarea                          |
+| GET    | `/lists/:listId/members`                | Obtener miembros de la lista                |
+| POST   | `/lists/:listId/members`                | Invitar a un miembro                        |
+| PATCH  | `/lists/:listId/members/:memberId/role` | Cambiar el rol de un miembro                |
+| DELETE | `/lists/:listId/members/:memberId`      | Eliminar un miembro                         |
 
 ---
 
