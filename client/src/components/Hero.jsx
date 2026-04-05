@@ -15,7 +15,7 @@ export default function Hero() {
     'Achieve goals step by step',
     'Keep your tasks under control',
     'Plan better, execute faster',
-    'Simplify your daily workflow',
+    'Simplify your daily Taskflow',
     'Turn ideas into real results',
     'Manage priorities with efficiency',
     'Transform tasks into achievements',
