@@ -22,6 +22,7 @@ import MemberOptionsModal from '../components/modal/MemberOptionsModal';
 import ListOptionsModal from '../components/modal/ListOptionsModal';
 import LoadingSkeleton from '@/components/LoadingSkeleton';
 import FetchErrorMessage from '@/components/FetchErrorMessage';
+import SettingsIcon from '@/components/icons/SettingsIcon';
 
 const ListTodos = () => {
   const { listId } = useParams();
@@ -283,8 +284,8 @@ const ListTodos = () => {
               Your role: <span className="font-semibold">{myRole}</span>
             </div>
             {['owner', 'admin', 'editor'].includes(myRole) && (
-              <button className='border px-2 py-1 w-full  border-black rounded-md cursor-pointer hover:bg-gray-200' onClick={() => setIsListModalOpen(true)}>
-                ⚙️ List settings
+              <button className='border px-2 py-1 w-full flex gap-2 items-center border-black rounded-md cursor-pointer hover:bg-gray-200' onClick={() => setIsListModalOpen(true)}>
+                <SettingsIcon/> List settings
               </button>
             )}
           </aside>

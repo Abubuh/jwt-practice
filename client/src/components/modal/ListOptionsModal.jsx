@@ -7,6 +7,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { useState } from 'react';
+import PencilIcon from '../icons/PencilIcon';
 
 const ListOptionsModal = ({ isOpen, onClose, list, onDelete, onUpdate, role }) => {
   const [view, setView] = useState('options');
@@ -80,9 +81,9 @@ const ListOptionsModal = ({ isOpen, onClose, list, onDelete, onUpdate, role }) =
                   setView('edit');
                   setError('');
                 }}
-                className="w-full text-left px-4 py-2 text-sm rounded-lg hover:bg-gray-100 transition"
+                className="w-full flex gap-2 items-center text-left px-4 py-2 text-sm rounded-lg hover:bg-gray-100 transition"
               >
-                ✏️ Edit title
+                <PencilIcon/> Edit title
               </button>
               {
                 ["owner"].includes(role) && (

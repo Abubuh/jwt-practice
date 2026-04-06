@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import TodoOptionsModal from './modal/TodoOptionsModal';
+import SettingsIcon from './icons/SettingsIcon';
 
   const priorityColors = {
     low: 'bg-green-100 text-green-600',
@@ -71,9 +72,9 @@ export default function TodoCard({
               {canCreateEditAssignReorder && (
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="bg-white text-black border border-gray-700 hover:bg-gray-200 cursor-pointer rounded px-2 py-1 text-xs font-medium transition"
+                  className="bg-white text-black border border-gray-700 flex gap-2 items-center hover:bg-gray-200 cursor-pointer rounded px-2 py-1 text-xs font-medium transition"
                 >
-                  ⚙️Settings
+                  <SettingsIcon/> Settings
                 </button>
               )}
             </div>

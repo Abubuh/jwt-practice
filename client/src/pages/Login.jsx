@@ -30,7 +30,7 @@ const Login = () => {
 
   return (
     <UserFormContainer>
-      <UserFormTitle title="Welcome Back 👋" />
+      <UserFormTitle title="Welcome Back" />
       <UserForm
         buttonText="Login"
         onSubmit={handleSubmit}
