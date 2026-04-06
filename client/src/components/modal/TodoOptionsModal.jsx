@@ -168,7 +168,7 @@ const TodoOptionsModal = ({
                     onClick={() => setView('delete')}
                     className="self-start px-4 py-2 cursor-pointer text-sm border border-black text-blac rounded-lg hover:bg-gray-200 transition font-semibold"
                   >
-                    {loading ? 'Deleting...' : '🗑️ Delete'}
+                    {loading ? 'Deleting...' : 'Delete'}
                   </button>
                 )}
                 <div className="flex gap-2">

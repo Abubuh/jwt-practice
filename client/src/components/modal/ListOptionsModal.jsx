@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/dialog';
 import { useState } from 'react';
 import PencilIcon from '../icons/PencilIcon';
+import TrashIcon from '../icons/TrashIcon';
 
 const ListOptionsModal = ({ isOpen, onClose, list, onDelete, onUpdate, role }) => {
   const [view, setView] = useState('options');
@@ -89,9 +90,9 @@ const ListOptionsModal = ({ isOpen, onClose, list, onDelete, onUpdate, role }) =
                 ["owner"].includes(role) && (
                 <button
                 onClick={() => setView('delete')}
-                className="w-full text-left px-4 py-2 text-sm rounded-lg hover:bg-red-50 text-red-500 transition"
+                className="w-full text-left flex gap-2 items-center px-4 py-2 text-sm rounded-lg hover:bg-red-50 text-red-500 transition"
                 >
-                🗑️ Delete list
+                <TrashIcon/> Delete list
               </button>
                 )
               }
